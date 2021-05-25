@@ -1,23 +1,19 @@
 [package]
-name = "newtype_derive"
-version = "0.1.7"
-authors = ["Daniel Keep <daniel.keep@gmail.com>"]
-
+edition = "2018"
+name = "newtype-derive-2018"
+version = "0.0.1"
+authors = ["warlock <internalmike@gmail.com>"]
 description = "This crate provides macros for deriving common traits for newtype structures."
-repository = "https://github.com/DanielKeep/rust-custom-derive"
-documentation = "https://docs.rs/crate/newtype_derive/"
-license = "MIT/Apache-2.0"
-keywords = ["newtype", "derive", "wrapper", "custom_derive", "macro-attr", "macro"]
-
-build = "build.rs"
+readme = "README.md"
+documentation = "https://docs.rs/newtype-derive-2018/"
+keywords = ["newtype", "derive", "custom_derive", "macro", "macro-attr"]
+categories = ["rust-patterns", "no-std"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/A1-Triard/newtype-derive-2018"
 
 [features]
 default = ["std"]
 std = []
-std-unstable = []
-
-[build-dependencies]
-rustc_version = "0.1.7"
 
 [dev-dependencies]
-macro-attr = { version = "0.2.1", path = ".." }
+macro-attr-2018 = "1.1.0"
