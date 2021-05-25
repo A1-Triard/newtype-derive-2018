@@ -1,5 +1,5 @@
 /*
-Copyright ⓒ 2016 macro-attr contributors.
+Copyright ⓒ 2015 macro-attr contributors.
 
 Licensed under the MIT license (see LICENSE or <http://opensource.org
 /licenses/MIT>) or the Apache License, Version 2.0 (see LICENSE of
@@ -8,986 +8,1164 @@ files in the project carrying such notice may not be copied, modified,
 or distributed except according to those terms.
 */
 /*!
-This crate provides the `macro_attr!` macro that enables the use of custom, macro-based attributes and derivations.  Supercedes the `custom_derive` crate.
+This crate provides several macros for deriving implementations of various traits for "newtype" wrappers (*i.e.* tuple structs with a single element).  That is, given a tuple struct with exactly one field (*e.g.* `struct Buckets(i32)`), these macros will derive "obvious" implementations of traits such as `Add`, `Neg`, `Index`, `Deref`, `From`, etc.
 
-<style type="text/css">
-.link-block { font-family: "Fira Sans"; }
-.link-block > p { display: inline-block; }
-.link-block > p > strong { font-weight: 500; margin-right: 1em; }
-.link-block > ul { display: inline-block; padding: 0; list-style: none; }
-.link-block > ul > li {
-  font-size: 0.8em;
-  background-color: #eee;
-  border: 1px solid #ccc;
-  padding: 0.3em;
-  display: inline-block;
-}
-</style>
-<span></span><div class="link-block">
+All of these macros are designed to be used with the [`macro-attr`](https://crates.io/crates/macro-attr) crate, though they can be used independent of it.
 
-**Links**
+# Example
 
-* [Latest Release](https://crates.io/crates/macro-attr/)
-* [Latest Docs](https://docs.rs/crate/macro-attr/)
-* [Repository](https://github.com/DanielKeep/rust-custom-derive)
-
-<span></span></div>
-
-## Compatibility
-
-`macro-attr` is compatible with Rust 1.2 and higher.
-
-## Quick Example
-
-To use it, make sure you link to the crate like so:
+Create a simple integer wrapper with some arithmetic operators:
 
 ```rust
 #[macro_use] extern crate macro_attr;
-# macro_rules! Dummy { (() struct $name:ident;) => {}; }
-# macro_attr! { #[derive(Clone, Dummy!)] struct Foo; }
-# fn main() { let _ = Foo; }
-```
-
-The `macro_attr!` macro should be used to wrap an entire *single* item (`enum`, `struct`, *etc.*) declaration, including its attributes (both `derive` and others).  All attributes and derivations which whose names end with `!` will be assumed to be implemented by macros, and treated accordingly.
-
-For example:
-
-```rust
-#[macro_use] extern crate macro_attr;
-
-// Define some traits to be derived.
-
-trait TypeName {
-    fn type_name() -> &'static str;
-}
-
-trait ReprType {
-    type Repr;
-}
-
-// Define macros which derive implementations of these macros.
-
-macro_rules! TypeName {
-    // We can support any kind of item we want.
-    (() $(pub)* enum $name:ident $($tail:tt)*) => { TypeName! { @impl $name } };
-    (() $(pub)* struct $name:ident $($tail:tt)*) => { TypeName! { @impl $name } };
-
-    // Inner rule to cut down on repetition.
-    (@impl $name:ident) => {
-        impl TypeName for $name {
-            fn type_name() -> &'static str { stringify!($name) }
-        }
-    };
-}
-
-macro_rules! ReprType {
-    // Note that we use a "derivation argument" here for the `$repr` type.
-    (($repr:ty) $(pub)* enum $name:ident $($tail:tt)*) => {
-        impl ReprType for $name {
-            type Repr = $repr;
-        }
-    };
-}
-
-// Here is a macro that *modifies* the item.
-
-macro_rules! rename_to {
-    (
-        ($new_name:ident),
-        then $cb:tt,
-        $(#[$($attrs:tt)*])*
-        enum $_old_name:ident $($tail:tt)*
-    ) => {
-        macro_attr_callback! {
-            $cb,
-            $(#[$($attrs)*])*
-            enum $new_name $($tail)*
-        }
-    };
-}
+#[macro_use] extern crate newtype_derive;
 
 macro_attr! {
-    #[allow(dead_code)]
-    #[derive(Clone, Copy, Debug, ReprType!(u8), TypeName!)]
-    #[rename_to!(Bar)]
-    #[repr(u8)]
-    enum Foo { A, B }
+    #[derive(NewtypeFrom!, NewtypeAdd!, NewtypeMul!(i32))]
+    pub struct Happy(i32);
 }
 
-fn main() {
-    let bar = Bar::B;
-    let v = bar as <Bar as ReprType>::Repr;
-    let msg = format!("{}: {:?} ({:?})", Bar::type_name(), bar, v);
-    assert_eq!(msg, "Bar: B (1)");
+# fn main() {
+// Let's add some happy little ints.
+let a = Happy::from(6);
+let b = Happy::from(7);
+let c = (a + b) * 3;
+let d: i32 = c.into();
+assert_eq!(d, 39);
+# }
+```
+
+Create a "deref-transparent" wrapper around a type:
+
+```rust
+#[macro_use] extern crate macro_attr;
+#[macro_use] extern crate newtype_derive;
+
+macro_attr! {
+    #[derive(NewtypeFrom!,
+        NewtypeDeref!, NewtypeDerefMut!,
+        NewtypeIndex!(usize), NewtypeIndexMut!(usize)
+        )]
+    pub struct I32Array(Vec<i32>);
+}
+
+# fn main() {
+let mut arr = I32Array::from(vec![1, 2, 3]);
+arr.push(4);
+arr[2] = 5;
+assert_eq!(&**arr, &[1, 2, 5, 4]);
+assert_eq!(arr.len(), 4);
+# }
+```
+
+# Overview
+
+This crate provides macros to derive implementations of the following traits for newtype structs:
+
+- Binary Arithmetic Operators: Add, BitAnd, BitOr, BitXor, Div, Mul, Rem, Sub, Shl, Shr, plus the corresponding *Assign traits.
+- Unary Arithmetic Operators: Neg, Not.
+- Other Operators: Deref, DerefMut, Index, IndexMut.
+- Formatting: Binary, Debug, Display, LowerExp, LowerHex, Octal, Pointer, UpperExp, UpperHex.
+- Miscellaneous: From.
+- Unstable: One, Product, Sum, Zero (requires the `std-unstable` feature).
+
+All of these macros are named `Newtype$Trait`.
+
+None of these macros currently support generic newtype structs.
+
+## Binary Arithmetic Operators
+
+Each of the binary arithmetic operators accept several deriving forms.  To use `Add` on a struct `T` as an example:
+
+- `NewtypeAdd`: `impl Add<T, Output=T> for T`
+- `NewtypeAdd(&self)`: `impl<'a> Add<&'a T, Output=T> for &'a T`
+- `NewtypeAdd(U)`: `impl Add<U, Output=T> for T`
+- `NewtypeAdd(&self, U)`: `impl<'a> Add<U, Output=T> for &'a T`
+- `NewtypeAdd(*)`: All four combinations of `T` and `&T`
+
+The `*Assign` variants accept zero or one argument only.  For example:
+
+- `NewtypeAddAssign`: `impl AddAssign<T> for T`
+- `NewtypeAddAssign(&Self)`: `impl<'a> Add<&'a T> for &'a T`
+- `NewtypeAddAssign(U)`: `impl Add<U> for T`
+- `NewtypeAddAssign(*)`: Implements for `T` and `&T`.
+
+In all cases, the implementation unwraps the newtype (where necessary), forwards to the wrapped value's implementation, then re-wraps the result in the newtype.
+
+## Unary Arithmetic Operators
+
+Each of the binary arithmetic operators accept several deriving forms.  To use `Neg` on a struct `T` as an example:
+
+- `NewtypeNeg`: `impl Neg<Output=T> for T`
+- `NewtypeNeg(&self)`: `impl<'a> Neg<Output=T> for &'a T`
+- `NewtypeNeg(*)`: both of the above
+
+In all cases, the implementation unwraps the newtype, forwards to the wrapped value's implementation, then re-wraps the result in the newtype.
+
+## Other Operators
+
+`NewtypeDeref` and `NewtypeDerefMut` only support the argument-less form, and implements the corresponding trait such that the newtype structure derefs to a pointer to the wrapped value.
+
+`NewtypeIndex` and `NewtypeIndexMut` must be used as `NewtypeIndex(usize)`, where the argument is the type to use for indexing.  The call is forwarded to the wrapped value's implementation.
+
+## Formatting
+
+The deriving macros for the formatting traits in [`std::fmt`][] forward to the wrapped value's implementation.
+
+[`std::fmt`]: http://doc.rust-lang.org/std/fmt/index.html
+
+## Miscellaneous
+
+`NewtypeFrom` implements `std::convert::From` twice: once for converting from the wrapped type to the newtype, and once for converting from the newtype to the wrapped type.
+
+`NewtypeProduct` and `NewtypeSum` optionally support specifying `&Self` as an argument to generate an implementation that accepts an iterator of borrowed pointers (*e.g.* `NewtypeSum(&Self)`).
+
+## Using Without `macro_attr!`
+
+Although designed to be used with `macro_attr!`, all of the macros in this crate can be used without it.  The following:
+
+```rust
+# #[macro_use] extern crate macro_attr;
+# #[macro_use] extern crate newtype_derive;
+macro_attr! {
+    #[derive(Copy, Clone, Debug, NewtypeFrom!, NewtypeAdd!, NewtypeAdd!(f32))]
+    pub struct Meters(f32);
+}
+# fn main() {}
+```
+
+Can also be written as:
+
+```rust
+# #[macro_use] extern crate newtype_derive;
+#[derive(Copy, Clone, Debug)]
+pub struct Meters(f32);
+
+NewtypeFrom! { () pub struct Meters(f32); }
+NewtypeAdd! { () pub struct Meters(f32); }
+NewtypeAdd! { (f32) pub struct Meters(f32); }
+# fn main() {}
+```
+*/
+/*
+# `Newtype$binop` Template
+
+Given `/\/\/\s*(ntbop\s+([A-Za-z0-9]+),\s*([a-z_]+))\n(^#\[.+?\]$\n)*^macro_rules!.*?\{$\n(^ +.*?$\n)*^\}$/`,
+
+```
+// \1
+#[macro_export]
+macro_rules! Newtype\2 {
+    ((*) $($tts:tt)*) => {
+        Newtype\2! { () $($tts)* }
+        Newtype\2! { (&self) $($tts)* }
+        Newtype\2! { (&Self) $($tts)* }
+        Newtype\2! { (&self, Self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::\2)::\3, kind: simple, item: $($tts)* }
+    };
+    ((&self) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::\2)::\3, kind: simple_ref, item: $($tts)* }
+    };
+    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::\2)::\3, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::\2)::\3, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+}
+```
+
+# `Newtype$binopass` Template
+
+Given `/\/\/\s*(ntbopass\s+([A-Za-z0-9]+),\s*([a-z_]+))\n(^#\[.+?\]$\n)*^macro_rules!.*?\{$\n(^ +.*?$\n)*^\}$/`,
+
+```
+// \1
+#[macro_export]
+#[cfg(op_assign)]
+macro_rules! Newtype\2 {
+    ((*) $($tts:tt)*) => {
+        Newtype\2! { () $($tts)* }
+        Newtype\2! { (&self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::\2)::\3, kind: simple, item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::\2)::\3, kind: rhs($($rhs)*), item: $($tts)* }
+    };
+}
+```
+
+# `Newtype$unop` Template
+
+Given `/\/\/\s*(ntuop\s+([A-Za-z0-9]+),\s*([a-z_]+))\n(^#\[.+?\]$\n)*^macro_rules!.*?\{$\n(^ +.*?$\n)*^\}$/`,
+
+```
+// \1
+#[macro_export]
+macro_rules! Newtype\2 {
+    ((*) $($tts:tt)*) => {
+        Newtype\2! { () $($tts)* }
+        Newtype\2! { (&self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_un_op! { trait: (::std::ops::\2)::\3, kind: simple, item: $($tts)* }
+    };
+    ((&self) $($tts:tt)*) => {
+        newtype_wrap_un_op! { trait: (::std::ops::\2)::\3, kind: simple_ref, item: $($tts)* }
+    };
 }
 ```
 */
 #![cfg_attr(not(feature = "std"), no_std)]
 
-/**
-When given an item definition, including its attributes, this macro parses said attributes and dispatches any attributes or derivations suffixed with `!` to user-defined macros.  This allows multiple macros to process the same item.
+mod std_unstable;
 
-This is similar to, but distinct from, the function of "procedural" macros and compiler plugins.
-
-# Supported Forms
-
-In particular, this macro looks for two kinds of syntax:
-
-- Derivations such as the `Name` in `#[derive(Name!)]` or `#[derive(Name!(...))]`.
-- Top-level attributes written as `#[name!]` or `#![name!(...)]`.
-
-Unlike "real" attributes, optional parenthesised arguments after the `!` are allowed to be entirely arbitrary token trees, meaning they can effectively contain any token sequence.  These are supported to allow custom attribute macros to easily take arguments.
-
-Derivations parse the item and emit whatever additional definitions needed.  They *cannot* change the item itself, and do not receive any other attributes attached to the item.
-
-Attributes receive *everything* lexically *after* themselves, and must re-emit the item.  This allows attributes to make changes to the item, drop or alter other attributes, *etc.*.  This power makes writing attribute macros more difficult, however.
-
-# Macro Derivations
-
-Given the following input:
-
-```ignore
-#[derive(Copy, Name!(args...), Clone, Another!, Debug)]
-struct Foo;
-```
-
-`macro_attr!` will expand to the equivalent of:
-
-```ignore
-#[derive(Copy, Clone, Debug)]
-struct Foo;
-
-Name!((args...) struct Foo;);
-Another!(() struct Foo;);
-```
-
-Note that macro derives may be mixed with regular derives, or put in their own `#[derive(...)]` attribute.  Also note that macro derive invocations are *not* passed the other attributes on the item; input will consist of the arguments provided to the derivation (*i.e.* `(args...)` in this example), the item's visibility (if any), and the item definition itself.
-
-A macro derivation invoked *without* arguments will be treated as though it was invoked with empty parentheses.  *i.e.* `#[derive(Name!)]` is equivalent to `#[derive(Name!())]`.
-
-A derivation macro may expand to any number of new items derived from the provided input.  There is no way for a derivation macro to alter the item itself (for that, use a macro attribute).
-
-# Macro Attributes
-
-When `macro_attr!` encounters an attribute suffixed with a `!` (*e.g.* `#[name!(args...)]`), it invokes the macro `name!` with everything lexically *after* that attribute.  A macro attribute is free to add to, remove from, or alter the provided input as it sees fit, before instructing `macro_attr!` to resume parsing.
-
-For example, given the following input:
-
-```ignore
-#[make_unitary!]
-#[repr(C)]
-#[rename_to!(Quux)]
-#[doc="Test."]
-struct Bar { field: i32 }
-```
-
-`macro_attr!` will expand to:
-
-```ignore
-make_unitary! {
-    (), then $resume,
-    #[repr(C)]
-    #[rename_to!(Quux)]
-    #[doc="Test."]
-    struct Bar { field: i32 };
-}
-```
-
-Note that `$resume` is **not** literal.  When implementing an attribute macro, you should accept this part as `$resume:tt`, and not attempt to inspect or deconstruct the contents.
-
-Assuming `make_unitary!` removes the body of the `struct` it is attached to, `macro_attr!` *requires* that it expand to:
-
-```ignore
-macro_attr_callback! {
-    $resume,
-    #[repr(C)]
-    #[rename_to!(Quxx)]
-    #[doc="Test."]
-    struct Bar;
-}
-```
-
-`macro_attr!` will then resume parsing, and expand to:
-
-```ignore
-rename_to! {
-    (Quxx), then $resume,
-    #[doc="Test."]
-    struct Bar;
-}
-```
-
-Assuming `rename_to!` does the obvious thing and changes the name of the item it is attached to, it should expand to:
-
-```ignore
-macro_attr_callback! {
-    $resume,
-    #[doc="Test."]
-    struct Quxx;
-}
-```
-
-Once more, `macro_attr!` will resume, and produce the final expansion of:
-
-```ignore
-#[repr(C)]
-#[doc="Test."]
-struct Quxx;
-```
-
-Note that normal attributes are automatically carried through and re-attached to the item.
-
-Macro attributes should be used as sparingly as possible: due to the way Rust macros work, they must expand recursively in sequence, which can quickly consume the available macro recursion limit.  This limit can be raised, but it makes for a less-than-ideal user experience if you are authoring macros to be used by others.
-*/
-#[macro_export]
-macro_rules! macro_attr {
-    ($($item:tt)*) => {
-        macro_attr_impl! { $($item)* }
-    };
-}
-
-/**
-This macro exists as an implementation detail.  This is because if it *wasn't*, then the public-facing `macro_attr!` macro's documentation would be hideously unwieldy.
-*/
 #[doc(hidden)]
 #[macro_export]
-macro_rules! macro_attr_impl {
-    /*
-
-    > **Convention**: a capture named `$fixed` is used for any part of a recursive rule that is needed in the terminal case, but is not actually being *used* for the recursive part.  This avoids having to constantly repeat the full capture pattern (and makes changing it easier).
-
-    # Primary Invocation Forms
-
-    These need to catch any valid form of item.
-
-    */
-    (
-        $(#[$($attrs:tt)*])*
-        const $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*), (), (),
-            (const $($it)*)
-        }
-    };
-
-    (
-        $(#[$($attrs:tt)*])*
-        enum $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*), (), (),
-            (enum $($it)*)
-        }
-    };
-
-    (
-        $(#[$($attrs:tt)*])*
-        extern $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*), (), (),
-            (extern $($it)*)
-        }
-    };
-
-    (
-        $(#[$($attrs:tt)*])*
-        fn $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*), (), (),
-            (fn $($it)*)
-        }
-    };
-
-    (
-        $(#[$($attrs:tt)*])*
-        impl $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*), (), (),
-            (impl $($it)*)
-        }
-    };
-
-    (
-        $(#[$($attrs:tt)*])*
-        mod $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*), (), (),
-            (mod $($it)*)
-        }
-    };
-
-    (
-        $(#[$($attrs:tt)*])*
-        pub $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*), (), (),
-            (pub $($it)*)
-        }
-    };
-
-    (
-        $(#[$($attrs:tt)*])*
-        static $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*), (), (),
-            (static $($it)*)
-        }
-    };
-
-    (
-        $(#[$($attrs:tt)*])*
-        struct $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*), (), (),
-            (struct $($it)*)
-        }
-    };
-
-    (
-        $(#[$($attrs:tt)*])*
-        trait $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*), (), (),
-            (trait $($it)*)
-        }
-    };
-
-    (
-        $(#[$($attrs:tt)*])*
-        type $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*), (), (),
-            (type $($it)*)
-        }
-    };
-
-    (
-        $(#[$($attrs:tt)*])*
-        use $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*), (), (),
-            (use $($it)*)
-        }
-    };
-
-    /*
-
-    # `@split_attrs`
-
-    This is responsible for dividing all attributes on an item into two groups:
-
-    - `#[derive(...)]`
-    - Everything else.
-
-    As part of this, it also explodes `#[derive(A, B(..), C, ...)]` into `A, B(..), C, ...`.  This is to simplify the next stage.
-
-    */
-    (
-        @split_attrs
-        (),
-        $non_derives:tt,
-        $derives:tt,
-        $it:tt
-    ) => {
-        macro_attr_impl! {
-            @split_derive_attrs
-            { $non_derives, $it },
-            $derives,
-            (),
-            ()
-        }
-    };
-
-    (
-        @split_attrs
-        (#[derive($($new_drvs:tt)*)], $(#[$($attrs:tt)*],)*),
-        $non_derives:tt,
-        ($($derives:tt)*),
-        $it:tt
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*),
-            $non_derives,
-            ($($derives)* $($new_drvs)*,),
-            $it
-        }
-    };
-
-    (
-        @split_attrs
-        (#[$mac_attr:ident!], $(#[$($attrs:tt)*],)*),
-        $non_derives:tt,
-        $derives:tt,
-        ($($it:tt)*)
-    ) => {
-        $mac_attr! {
-            (),
-            then (macro_attr_impl! {
-                @split_attrs_resume
-                $non_derives,
-                $derives,
-            }),
-            $(#[$($attrs)*])*
-            $($it)*
-        }
-    };
-
-
-    (
-        @split_attrs
-        (#[$mac_attr:ident!($($attr_args:tt)*)], $(#[$($attrs:tt)*],)*),
-        $non_derives:tt,
-        $derives:tt,
-        ($($it:tt)*)
-    ) => {
-        $mac_attr! {
-            ($($attr_args)*),
-            then (macro_attr_impl! {
-                @split_attrs_resume
-                $non_derives,
-                $derives,
-            }),
-            $(#[$($attrs)*])*
-            $($it)*
-        }
-    };
-
-    (
-        @split_attrs
-        (#[$mac_attr:ident~!], $(#[$($attrs:tt)*],)*),
-        ($($non_derives:tt)*),
-        $derives:tt,
-        ($($it:tt)*)
-    ) => {
-        macro_attr_if_proc_macros! {
-            proc_macros: {
-                macro_attr_impl! {
-                    @split_attrs
-                    ($(#[$($attrs)*],)*),
-                    ($($non_derives)* #[$mac_attr],),
-                    $derives,
-                    $($it)*
-                }
-            }
-            fallback: {
-                $mac_attr! {
-                    (),
-                    then (macro_attr_impl! {
-                        @split_attrs_resume
-                        ($($non_derives)*),
-                        $derives,
-                    }),
-                    $(#[$($attrs)*])*
-                    $($it)*
-                }
-            }
-        }
-    };
-
-    (
-        @split_attrs
-        (#[$mac_attr:ident~!($($attr_args:tt)*)], $(#[$($attrs:tt)*],)*),
-        ($($non_derives:tt)*),
-        $derives:tt,
-        ($($it:tt)*)
-    ) => {
-        macro_attr_if_proc_macros! {
-            proc_macros: {
-                macro_attr_impl! {
-                    @split_attrs
-                    ($(#[$($attrs)*],)*),
-                    ($($non_derives)* #[$mac_attr($($attr_args)*)],),
-                    $derives,
-                    $($it)*
-                }
-            }
-            fallback: {
-                $mac_attr! {
-                    ($($attr_args)*),
-                    then (macro_attr_impl! {
-                        @split_attrs_resume
-                        ($($non_derives)*),
-                        $derives,
-                    }),
-                    $(#[$($attrs)*])*
-                    $($it)*
-                }
-            }
-        }
-    };
-
-    (
-        @split_attrs
-        (#[$new_attr:meta], $(#[$($attrs:tt)*],)*),
-        ($($non_derives:tt)*),
-        $derives:tt,
-        $it:tt
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*),
-            ($($non_derives)* #[$new_attr],),
-            $derives,
-            $it
-        }
-    };
-
-
-    /*
-
-    # `@split_attrs_resume`
-
-    Callback used to re-enter this macro after running a macro attribute.
-
-    */
-
-    (
-        @split_attrs_resume
-        $non_derives:tt,
-        $derives:tt,
-        $(#[$($attrs:tt)*])*
-        const $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*),
-            $non_derives,
-            $derives,
-            (const $($it)*)
-        }
-    };
-
-    (
-        @split_attrs_resume
-        $non_derives:tt,
-        $derives:tt,
-        $(#[$($attrs:tt)*])*
-        enum $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*),
-            $non_derives,
-            $derives,
-            (enum $($it)*)
-        }
-    };
-
-    (
-        @split_attrs_resume
-        $non_derives:tt,
-        $derives:tt,
-        $(#[$($attrs:tt)*])*
-        extern $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*),
-            $non_derives,
-            $derives,
-            (extern $($it)*)
-        }
-    };
-
-    (
-        @split_attrs_resume
-        $non_derives:tt,
-        $derives:tt,
-        $(#[$($attrs:tt)*])*
-        fn $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*),
-            $non_derives,
-            $derives,
-            (fn $($it)*)
-        }
-    };
-
-    (
-        @split_attrs_resume
-        $non_derives:tt,
-        $derives:tt,
-        $(#[$($attrs:tt)*])*
-        impl $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*),
-            $non_derives,
-            $derives,
-            (impl $($it)*)
-        }
-    };
-
-    (
-        @split_attrs_resume
-        $non_derives:tt,
-        $derives:tt,
-        $(#[$($attrs:tt)*])*
-        mod $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*),
-            $non_derives,
-            $derives,
-            (mod $($it)*)
-        }
-    };
-
-    (
-        @split_attrs_resume
-        $non_derives:tt,
-        $derives:tt,
-        $(#[$($attrs:tt)*])*
-        pub $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*),
-            $non_derives,
-            $derives,
-            (pub $($it)*)
-        }
-    };
-
-    (
-        @split_attrs_resume
-        $non_derives:tt,
-        $derives:tt,
-        $(#[$($attrs:tt)*])*
-        static $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*),
-            $non_derives,
-            $derives,
-            (static $($it)*)
-        }
-    };
-
-    (
-        @split_attrs_resume
-        $non_derives:tt,
-        $derives:tt,
-        $(#[$($attrs:tt)*])*
-        struct $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*),
-            $non_derives,
-            $derives,
-            (struct $($it)*)
-        }
-    };
-
-    (
-        @split_attrs_resume
-        $non_derives:tt,
-        $derives:tt,
-        $(#[$($attrs:tt)*])*
-        trait $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*),
-            $non_derives,
-            $derives,
-            (trait $($it)*)
-        }
-    };
-
-    (
-        @split_attrs_resume
-        $non_derives:tt,
-        $derives:tt,
-        $(#[$($attrs:tt)*])*
-        type $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*),
-            $non_derives,
-            $derives,
-            (type $($it)*)
-        }
-    };
-
-    (
-        @split_attrs_resume
-        $non_derives:tt,
-        $derives:tt,
-        $(#[$($attrs:tt)*])*
-        use $($it:tt)*
-    ) => {
-        macro_attr_impl! {
-            @split_attrs
-            ($(#[$($attrs)*],)*),
-            $non_derives,
-            $derives,
-            (use $($it)*)
-        }
-    };
-
-
-    /*
-
-    # `@split_derive_attrs`
-
-    This is responsible for taking the list of derivation attributes and splitting them into "built-in" and "custom" groups.
-
-    A custom attribute is any which has a `!` after the name, like a macro.
-    */
-
-    (@split_derive_attrs
-        { ($(#[$($non_derives:tt)*],)*), ($($it:tt)*) },
-        ($(,)*), (), ($($user_drvs:tt)*)
-    ) => {
-        macro_attr_impl! {
-            @as_item
-            $(#[$($non_derives)*])*
-            $($it)*
-        }
-
-        macro_attr_impl! {
-            @expand_user_drvs
-            ($($user_drvs)*), ($($it)*)
-        }
-    };
-
-    (@split_derive_attrs
-        { ($(#[$($non_derives:tt)*],)*), ($($it:tt)*) },
-        ($(,)*), ($($bi_drvs:ident,)+), ($($user_drvs:tt)*)
-    ) => {
-        macro_attr_impl! {
-            @as_item
-            #[derive($($bi_drvs,)+)]
-            $(#[$($non_derives)*])*
-            $($it)*
-        }
-
-        macro_attr_impl! {
-            @expand_user_drvs
-            ($($user_drvs)*), ($($it)*)
-        }
-    };
-
-    (@split_derive_attrs
-        $fixed:tt,
-        (,, $($tail:tt)*), $bi_drvs:tt, $user_drvs:tt
-    ) => {
-        macro_attr_impl! {
-            @split_derive_attrs
-            $fixed, ($($tail)*), $bi_drvs, $user_drvs
-        }
-    };
-
-    (@split_derive_attrs
-        $fixed:tt,
-        (, $($tail:tt)*), $bi_drvs:tt, $user_drvs:tt
-    ) => {
-        macro_attr_impl! {
-            @split_derive_attrs
-            $fixed, ($($tail)*), $bi_drvs, $user_drvs
-        }
-    };
-
-    /*
-
-    ## Custom Derivations
-
-    Now we can handle the custom derivations.  There are two forms we care about: those *with* an argument, and those *without*.
-
-    The *reason* we care is that, in order to simplify the derivation macros, we want to detect the argument-less case and generate an empty pair of parens.
-
-    */
-    (@split_derive_attrs
-        $fixed:tt,
-        ($new_user:ident ! ($($new_user_args:tt)*), $($tail:tt)*), $bi_drvs:tt, ($($user_drvs:tt)*)
-    ) => {
-        macro_attr_impl! {
-            @split_derive_attrs
-            $fixed, ($($tail)*), $bi_drvs, ($($user_drvs)* $new_user($($new_user_args)*),)
-        }
-    };
-
-    (@split_derive_attrs
-        $fixed:tt,
-        ($new_user:ident !, $($tail:tt)*), $bi_drvs:tt, ($($user_drvs:tt)*)
-    ) => {
-        macro_attr_impl! {
-            @split_derive_attrs
-            $fixed, ($($tail)*), $bi_drvs, ($($user_drvs)* $new_user(),)
-        }
-    };
-
-    /*
-
-    ## Hybrid Derivations
-
-    These are derivations that use regular macros *or* procedural macros, depending on the version of Rust in use.
-
-    */
-    (@split_derive_attrs
-        $fixed:tt,
-        ($new_drv:ident ~!, $($tail:tt)*), ($($bi_drvs:ident,)*), ($($user_drvs:tt)*)
-    ) => {
-        macro_attr_if_proc_macros! {
-            proc_macros: {
-                macro_attr_impl! {
-                    @split_derive_attrs
-                    $fixed,
-                    ($($tail)*),
-                    ($($bi_drvs,)* $new_drv,),
-                    ($($user_drvs)*)
-                }
-            }
-            fallback: {
-                macro_attr_impl! {
-                    @split_derive_attrs
-                    $fixed,
-                    ($($tail)*),
-                    ($($bi_drvs,)*),
-                    ($($user_drvs)* $new_drv(),)
-                }
-            }
-        }
-    };
-
-    /*
-
-    ## Non-Macro Derivations
-
-    All the rest.
-
-    */
-    (@split_derive_attrs
-        $fixed:tt,
-        ($drv:ident, $($tail:tt)*), ($($bi_drvs:ident,)*), $user_drvs:tt
-    ) => {
-        macro_attr_impl! {
-            @split_derive_attrs
-            $fixed,
-            ($($tail)*), ($($bi_drvs,)* $drv,), $user_drvs
-        }
-    };
-
-    /*
-
-    # `@expand_user_drvs`
-
-    Finally, we have a recursive rule for expanding user derivations.  This is basically just using the derivation name as a macro identifier.
-
-    This *has* to be recursive because we need to expand two independent repetition sequences simultaneously, and this causes `macro_rules!` to throw a wobbly.  Don't want that.  So, recursive it is.
-
-    */
-    (@expand_user_drvs
-        (), ($($it:tt)*)
-    ) => {};
-
-    (@expand_user_drvs
-        ($user_drv:ident $arg:tt, $($tail:tt)*), ($($it:tt)*)
-    ) => {
-        $user_drv! { $arg $($it)* }
-        macro_attr_impl! {
-            @expand_user_drvs
-            ($($tail)*), ($($it)*)
-        }
-    };
-
-    /*
-
-    # Miscellaneous Rules
-
-    */
-    (@as_item $($i:item)*) => {$($i)*};
+macro_rules! newtype_as_item {
+    ($i:item) => {$i};
 }
 
-/**
-This macro invokes a "callback" macro, merging arguments together.
-
-It takes an arbitrary macro call `(name!(args...))`, plus some sequence of `new_args...`, and expands `name!(args... new_args...)`.
-
-Importantly, it works irrespective of the kind of grouping syntax used for the macro arguments, simplifying macros which need to *capture* callbacks.
-*/
-#[macro_export]
-macro_rules! macro_attr_callback {
-    (
-        ($cb:ident ! { $($cb_fixed:tt)* }),
-        $($args:tt)*
-    ) => {
-        $cb! { $($cb_fixed)* $($args)* }
-    };
-
-    (
-        ($cb:ident ! [ $($cb_fixed:tt)* ]),
-        $($args:tt)*
-    ) => {
-        $cb! [ $($cb_fixed)* $($args)* ]
-    };
-
-    (
-        ($cb:ident ! ( $($cb_fixed:tt)* )),
-        $($args:tt)*
-    ) => {
-        $cb! ( $($cb_fixed)* $($args)* )
-    };
-}
-
-/**
-This macro provides a simple way to select between two branches of code, depending on whether or not support for procedural macros is enabled or not.
-*/
 #[doc(hidden)]
 #[macro_export]
-#[cfg(feature="unstable-macros-1-1")]
-macro_rules! macro_attr_if_proc_macros {
+macro_rules! newtype_wrap_bin_op {
     (
-        proc_macros: { $($items:item)* }
-        fallback: $_ignore:tt
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: simple,
+        item: $(pub)* struct $name:ident(pub $t:ty);
     ) => {
-        $($items)*
+        newtype_as_item! {
+            impl $($tr)*<$name> for $name {
+                type Output = $name;
+                fn $meth(self, rhs: Self) -> $name {
+                    $name((self.0).$meth(rhs.0))
+                }
+            }
+        }
+    };
+
+    (
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: simple,
+        item: $(pub)* struct $name:ident($t:ty);
+    ) => {
+        newtype_as_item! {
+            impl $($tr)*<$name> for $name {
+                type Output = $name;
+                fn $meth(self, rhs: Self) -> $name {
+                    $name((self.0).$meth(rhs.0))
+                }
+            }
+        }
+    };
+
+    (
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: simple_ref,
+        item: $(pub)* struct $name:ident(pub $t:ty);
+    ) => {
+        newtype_as_item! {
+            impl<'a> $($tr)*<&'a $name> for &'a $name {
+                type Output = $name;
+                fn $meth(self, rhs: Self) -> $name {
+                    $name((self.0).$meth(rhs.0))
+                }
+            }
+        }
+    };
+
+    (
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: simple_ref,
+        item: $(pub)* struct $name:ident($t:ty);
+    ) => {
+        newtype_as_item! {
+            impl<'a> $($tr)*<&'a $name> for &'a $name {
+                type Output = $name;
+                fn $meth(self, rhs: Self) -> $name {
+                    $name((self.0).$meth(rhs.0))
+                }
+            }
+        }
+    };
+
+    (
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: rhs_rewrap(&Self),
+        item: $(pub)* struct $name:ident(pub $t:ty);
+    ) => {
+        newtype_as_item! {
+            impl<'a> $($tr)*<&'a $name> for $name {
+                type Output = $name;
+                fn $meth(self, rhs: &'a $name) -> $name {
+                    $name((self.0).$meth(&rhs.0))
+                }
+            }
+        }
+    };
+
+    (
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: rhs_rewrap(&Self),
+        item: $(pub)* struct $name:ident($t:ty);
+    ) => {
+        newtype_as_item! {
+            impl<'a> $($tr)*<&'a $name> for $name {
+                type Output = $name;
+                fn $meth(self, rhs: &'a $name) -> $name {
+                    $name((self.0).$meth(&rhs.0))
+                }
+            }
+        }
+    };
+
+    (
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: rhs_rewrap($rhs:ty),
+        item: $(pub)* struct $name:ident(pub $t:ty);
+    ) => {
+        newtype_as_item! {
+            impl $($tr)*<$rhs> for $name {
+                type Output = $name;
+                fn $meth(self, rhs: $rhs) -> $name {
+                    $name((self.0).$meth(rhs))
+                }
+            }
+        }
+    };
+
+    (
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: rhs_rewrap($rhs:ty),
+        item: $(pub)* struct $name:ident($t:ty);
+    ) => {
+        newtype_as_item! {
+            impl $($tr)*<$rhs> for $name {
+                type Output = $name;
+                fn $meth(self, rhs: $rhs) -> $name {
+                    $name((self.0).$meth(rhs))
+                }
+            }
+        }
+    };
+
+    (
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: ref_rhs_rewrap(Self),
+        item: $(pub)* struct $name:ident(pub $t:ty);
+    ) => {
+        newtype_as_item! {
+            impl<'a> $($tr)*<$name> for &'a $name {
+                type Output = $name;
+                fn $meth(self, rhs: $name) -> $name {
+                    $name((self.0).$meth(rhs.0))
+                }
+            }
+        }
+    };
+
+    (
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: ref_rhs_rewrap(Self),
+        item: $(pub)* struct $name:ident($t:ty);
+    ) => {
+        newtype_as_item! {
+            impl<'a> $($tr)*<$name> for &'a $name {
+                type Output = $name;
+                fn $meth(self, rhs: $name) -> $name {
+                    $name((self.0).$meth(rhs.0))
+                }
+            }
+        }
+    };
+
+    (
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: ref_rhs_rewrap($rhs:ty),
+        item: $(pub)* struct $name:ident(pub $t:ty);
+    ) => {
+        newtype_as_item! {
+            impl<'a> $($tr)*<$rhs> for &'a $name {
+                type Output = $name;
+                fn $meth(self, rhs: $rhs) -> $name {
+                    $name((self.0).$meth(rhs))
+                }
+            }
+        }
+    };
+
+    (
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: ref_rhs_rewrap($rhs:ty),
+        item: $(pub)* struct $name:ident($t:ty);
+    ) => {
+        newtype_as_item! {
+            impl<'a> $($tr)*<$rhs> for &'a $name {
+                type Output = $name;
+                fn $meth(self, rhs: $rhs) -> $name {
+                    $name((self.0).$meth(rhs))
+                }
+            }
+        }
     };
 }
 
-/**
-This macro provides a simple way to select between two branches of code, depending on whether or not support for procedural macros is enabled or not.
-*/
 #[doc(hidden)]
 #[macro_export]
-#[cfg(not(feature="unstable-macros-1-1"))]
-macro_rules! macro_attr_if_proc_macros {
+macro_rules! newtype_wrap_bin_op_assign {
     (
-        proc_macros: $_ignore:tt
-        fallback: { $($items:item)* }
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: simple,
+        item: $(pub)* struct $name:ident(pub $t:ty);
     ) => {
-        $($items)*
+        newtype_as_item! {
+            impl $($tr)*<$name> for $name {
+                fn $meth(&mut self, rhs: Self) {
+                    (self.0).$meth(rhs.0)
+                }
+            }
+        }
+    };
+
+    (
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: simple,
+        item: $(pub)* struct $name:ident($t:ty);
+    ) => {
+        newtype_as_item! {
+            impl $($tr)*<$name> for $name {
+                fn $meth(&mut self, rhs: Self) {
+                    (self.0).$meth(rhs.0)
+                }
+            }
+        }
+    };
+
+    (
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: rhs(&Self),
+        item: $(pub)* struct $name:ident(pub $t:ty);
+    ) => {
+        newtype_as_item! {
+            impl<'a> $($tr)*<&'a $name> for $name {
+                fn $meth(&mut self, rhs: &'a $name) {
+                    (self.0).$meth(rhs.0)
+                }
+            }
+        }
+    };
+
+    (
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: rhs(&Self),
+        item: $(pub)* struct $name:ident($t:ty);
+    ) => {
+        newtype_as_item! {
+            impl<'a> $($tr)*<&'a $name> for $name {
+                fn $meth(&mut self, rhs: &'a $name) {
+                    (self.0).$meth(rhs.0)
+                }
+            }
+        }
+    };
+
+    (
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: rhs($rhs:ty),
+        item: $(pub)* struct $name:ident(pub $t:ty);
+    ) => {
+        newtype_as_item! {
+            impl $($tr)*<$rhs> for $name {
+                fn $meth(&mut self, rhs: $rhs) {
+                    (self.0).$meth(rhs)
+                }
+            }
+        }
+    };
+
+    (
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: rhs($rhs:ty),
+        item: $(pub)* struct $name:ident($t:ty);
+    ) => {
+        newtype_as_item! {
+            impl $($tr)*<$rhs> for $name {
+                fn $meth(&mut self, rhs: $rhs) {
+                    (self.0).$meth(rhs)
+                }
+            }
+        }
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! newtype_wrap_un_op {
+    (
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: simple,
+        item: $(pub)* struct $name:ident(pub $t:ty);
+    ) => {
+        newtype_as_item! {
+            impl $($tr)* for $name {
+                type Output = $name;
+                fn $meth(self) -> $name {
+                    $name((self.0).$meth())
+                }
+            }
+        }
+    };
+
+    (
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: simple,
+        item: $(pub)* struct $name:ident($t:ty);
+    ) => {
+        newtype_as_item! {
+            impl $($tr)* for $name {
+                type Output = $name;
+                fn $meth(self) -> $name {
+                    $name((self.0).$meth())
+                }
+            }
+        }
+    };
+
+    (
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: simple_ref,
+        item: $(pub)* struct $name:ident(pub $t:ty);
+    ) => {
+        newtype_as_item! {
+            impl<'a> $($tr)* for &'a $name {
+                type Output = $name;
+                fn $meth(self) -> $name {
+                    $name((self.0).$meth())
+                }
+            }
+        }
+    };
+
+    (
+        trait: ($($tr:tt)*)::$meth:ident,
+        kind: simple_ref,
+        item: $(pub)* struct $name:ident($t:ty);
+    ) => {
+        newtype_as_item! {
+            impl<'a> $($tr)* for &'a $name {
+                type Output = $name;
+                fn $meth(self) -> $name {
+                    $name((self.0).$meth())
+                }
+            }
+        }
+    };
+}
+
+// ntbop Add,      add
+#[macro_export]
+macro_rules! NewtypeAdd {
+    ((*) $($tts:tt)*) => {
+        NewtypeAdd! { () $($tts)* }
+        NewtypeAdd! { (&self) $($tts)* }
+        NewtypeAdd! { (&Self) $($tts)* }
+        NewtypeAdd! { (&self, Self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Add)::add, kind: simple, item: $($tts)* }
+    };
+    ((&self) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Add)::add, kind: simple_ref, item: $($tts)* }
+    };
+    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Add)::add, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Add)::add, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+}
+
+// ntbopass AddAssign, add_assign
+#[macro_export]
+#[cfg(op_assign)]
+macro_rules! NewtypeAddAssign {
+    ((*) $($tts:tt)*) => {
+        NewtypeAddAssign! { () $($tts)* }
+        NewtypeAddAssign! { (&self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::AddAssign)::add_assign, kind: simple, item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::AddAssign)::add_assign, kind: rhs($($rhs)*), item: $($tts)* }
+    };
+}
+
+// ntbop BitAnd,   bitand
+#[macro_export]
+macro_rules! NewtypeBitAnd {
+    ((*) $($tts:tt)*) => {
+        NewtypeBitAnd! { () $($tts)* }
+        NewtypeBitAnd! { (&self) $($tts)* }
+        NewtypeBitAnd! { (&Self) $($tts)* }
+        NewtypeBitAnd! { (&self, Self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::BitAnd)::bitand, kind: simple, item: $($tts)* }
+    };
+    ((&self) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::BitAnd)::bitand, kind: simple_ref, item: $($tts)* }
+    };
+    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::BitAnd)::bitand, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::BitAnd)::bitand, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+}
+
+// ntbopass BitAndAssign, bitand_assign
+#[macro_export]
+#[cfg(op_assign)]
+macro_rules! NewtypeBitAndAssign {
+    ((*) $($tts:tt)*) => {
+        NewtypeBitAndAssign! { () $($tts)* }
+        NewtypeBitAndAssign! { (&self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::BitAndAssign)::bitand_assign, kind: simple, item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::BitAndAssign)::bitand_assign, kind: rhs($($rhs)*), item: $($tts)* }
+    };
+}
+
+// ntbop BitOr,    bitor
+#[macro_export]
+macro_rules! NewtypeBitOr {
+    ((*) $($tts:tt)*) => {
+        NewtypeBitOr! { () $($tts)* }
+        NewtypeBitOr! { (&self) $($tts)* }
+        NewtypeBitOr! { (&Self) $($tts)* }
+        NewtypeBitOr! { (&self, Self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::BitOr)::bitor, kind: simple, item: $($tts)* }
+    };
+    ((&self) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::BitOr)::bitor, kind: simple_ref, item: $($tts)* }
+    };
+    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::BitOr)::bitor, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::BitOr)::bitor, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+}
+
+// ntbopass BitOrAssign, bitor_assign
+#[macro_export]
+#[cfg(op_assign)]
+macro_rules! NewtypeBitOrAssign {
+    ((*) $($tts:tt)*) => {
+        NewtypeBitOrAssign! { () $($tts)* }
+        NewtypeBitOrAssign! { (&self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::BitOrAssign)::bitor_assign, kind: simple, item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::BitOrAssign)::bitor_assign, kind: rhs($($rhs)*), item: $($tts)* }
+    };
+}
+
+// ntbop BitXor,   bitxor
+#[macro_export]
+macro_rules! NewtypeBitXor {
+    ((*) $($tts:tt)*) => {
+        NewtypeBitXor! { () $($tts)* }
+        NewtypeBitXor! { (&self) $($tts)* }
+        NewtypeBitXor! { (&Self) $($tts)* }
+        NewtypeBitXor! { (&self, Self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::BitXor)::bitxor, kind: simple, item: $($tts)* }
+    };
+    ((&self) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::BitXor)::bitxor, kind: simple_ref, item: $($tts)* }
+    };
+    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::BitXor)::bitxor, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::BitXor)::bitxor, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+}
+
+// ntbopass BitXorAssign, bitxor_assign
+#[macro_export]
+#[cfg(op_assign)]
+macro_rules! NewtypeBitXorAssign {
+    ((*) $($tts:tt)*) => {
+        NewtypeBitXorAssign! { () $($tts)* }
+        NewtypeBitXorAssign! { (&self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::BitXorAssign)::bitxor_assign, kind: simple, item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::BitXorAssign)::bitxor_assign, kind: rhs($($rhs)*), item: $($tts)* }
+    };
+}
+
+// ntbop Div,      div
+#[macro_export]
+macro_rules! NewtypeDiv {
+    ((*) $($tts:tt)*) => {
+        NewtypeDiv! { () $($tts)* }
+        NewtypeDiv! { (&self) $($tts)* }
+        NewtypeDiv! { (&Self) $($tts)* }
+        NewtypeDiv! { (&self, Self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Div)::div, kind: simple, item: $($tts)* }
+    };
+    ((&self) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Div)::div, kind: simple_ref, item: $($tts)* }
+    };
+    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Div)::div, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Div)::div, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+}
+
+// ntbopass DivAssign, div_assign
+#[macro_export]
+#[cfg(op_assign)]
+macro_rules! NewtypeDivAssign {
+    ((*) $($tts:tt)*) => {
+        NewtypeDivAssign! { () $($tts)* }
+        NewtypeDivAssign! { (&self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::DivAssign)::div_assign, kind: simple, item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::DivAssign)::div_assign, kind: rhs($($rhs)*), item: $($tts)* }
+    };
+}
+
+// ntbop Mul,      mul
+#[macro_export]
+macro_rules! NewtypeMul {
+    ((*) $($tts:tt)*) => {
+        NewtypeMul! { () $($tts)* }
+        NewtypeMul! { (&self) $($tts)* }
+        NewtypeMul! { (&Self) $($tts)* }
+        NewtypeMul! { (&self, Self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Mul)::mul, kind: simple, item: $($tts)* }
+    };
+    ((&self) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Mul)::mul, kind: simple_ref, item: $($tts)* }
+    };
+    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Mul)::mul, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Mul)::mul, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+}
+
+// ntbopass MulAssign, mul_assign
+#[macro_export]
+#[cfg(op_assign)]
+macro_rules! NewtypeMulAssign {
+    ((*) $($tts:tt)*) => {
+        NewtypeMulAssign! { () $($tts)* }
+        NewtypeMulAssign! { (&self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::MulAssign)::mul_assign, kind: simple, item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::MulAssign)::mul_assign, kind: rhs($($rhs)*), item: $($tts)* }
+    };
+}
+
+// ntbop Rem,      rem
+#[macro_export]
+macro_rules! NewtypeRem {
+    ((*) $($tts:tt)*) => {
+        NewtypeRem! { () $($tts)* }
+        NewtypeRem! { (&self) $($tts)* }
+        NewtypeRem! { (&Self) $($tts)* }
+        NewtypeRem! { (&self, Self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Rem)::rem, kind: simple, item: $($tts)* }
+    };
+    ((&self) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Rem)::rem, kind: simple_ref, item: $($tts)* }
+    };
+    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Rem)::rem, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Rem)::rem, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+}
+
+// ntbopass RemAssign, rem_assign
+#[macro_export]
+#[cfg(op_assign)]
+macro_rules! NewtypeRemAssign {
+    ((*) $($tts:tt)*) => {
+        NewtypeRemAssign! { () $($tts)* }
+        NewtypeRemAssign! { (&self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::RemAssign)::rem_assign, kind: simple, item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::RemAssign)::rem_assign, kind: rhs($($rhs)*), item: $($tts)* }
+    };
+}
+
+// ntbop Sub,      sub
+#[macro_export]
+macro_rules! NewtypeSub {
+    ((*) $($tts:tt)*) => {
+        NewtypeSub! { () $($tts)* }
+        NewtypeSub! { (&self) $($tts)* }
+        NewtypeSub! { (&Self) $($tts)* }
+        NewtypeSub! { (&self, Self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Sub)::sub, kind: simple, item: $($tts)* }
+    };
+    ((&self) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Sub)::sub, kind: simple_ref, item: $($tts)* }
+    };
+    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Sub)::sub, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Sub)::sub, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+}
+
+// ntbopass SubAssign, sub_assign
+#[macro_export]
+#[cfg(op_assign)]
+macro_rules! NewtypeSubAssign {
+    ((*) $($tts:tt)*) => {
+        NewtypeSubAssign! { () $($tts)* }
+        NewtypeSubAssign! { (&self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::SubAssign)::sub_assign, kind: simple, item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::SubAssign)::sub_assign, kind: rhs($($rhs)*), item: $($tts)* }
+    };
+}
+
+// ntbop Shl,      shl
+#[macro_export]
+macro_rules! NewtypeShl {
+    ((*) $($tts:tt)*) => {
+        NewtypeShl! { () $($tts)* }
+        NewtypeShl! { (&self) $($tts)* }
+        NewtypeShl! { (&Self) $($tts)* }
+        NewtypeShl! { (&self, Self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Shl)::shl, kind: simple, item: $($tts)* }
+    };
+    ((&self) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Shl)::shl, kind: simple_ref, item: $($tts)* }
+    };
+    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Shl)::shl, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Shl)::shl, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+}
+
+// ntbopass ShlAssign, shl_assign
+#[macro_export]
+#[cfg(op_assign)]
+macro_rules! NewtypeShlAssign {
+    ((*) $($tts:tt)*) => {
+        NewtypeShlAssign! { () $($tts)* }
+        NewtypeShlAssign! { (&self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::ShlAssign)::shl_assign, kind: simple, item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::ShlAssign)::shl_assign, kind: rhs($($rhs)*), item: $($tts)* }
+    };
+}
+
+// ntbop Shr,      shr
+#[macro_export]
+macro_rules! NewtypeShr {
+    ((*) $($tts:tt)*) => {
+        NewtypeShr! { () $($tts)* }
+        NewtypeShr! { (&self) $($tts)* }
+        NewtypeShr! { (&Self) $($tts)* }
+        NewtypeShr! { (&self, Self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Shr)::shr, kind: simple, item: $($tts)* }
+    };
+    ((&self) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Shr)::shr, kind: simple_ref, item: $($tts)* }
+    };
+    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Shr)::shr, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op! { trait: (::std::ops::Shr)::shr, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    };
+}
+
+// ntbopass ShrAssign, shr_assign
+#[macro_export]
+#[cfg(op_assign)]
+macro_rules! NewtypeShrAssign {
+    ((*) $($tts:tt)*) => {
+        NewtypeShrAssign! { () $($tts)* }
+        NewtypeShrAssign! { (&self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::ShrAssign)::shr_assign, kind: simple, item: $($tts)* }
+    };
+    (($($rhs:tt)*) $($tts:tt)*) => {
+        newtype_wrap_bin_op_assign! { trait: (::std::ops::ShrAssign)::shr_assign, kind: rhs($($rhs)*), item: $($tts)* }
+    };
+}
+
+// ntuop Neg,      neg
+#[macro_export]
+macro_rules! NewtypeNeg {
+    ((*) $($tts:tt)*) => {
+        NewtypeNeg! { () $($tts)* }
+        NewtypeNeg! { (&self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_un_op! { trait: (::std::ops::Neg)::neg, kind: simple, item: $($tts)* }
+    };
+    ((&self) $($tts:tt)*) => {
+        newtype_wrap_un_op! { trait: (::std::ops::Neg)::neg, kind: simple_ref, item: $($tts)* }
+    };
+}
+
+// ntuop Not,      not
+#[macro_export]
+macro_rules! NewtypeNot {
+    ((*) $($tts:tt)*) => {
+        NewtypeNot! { () $($tts)* }
+        NewtypeNot! { (&self) $($tts)* }
+    };
+    (() $($tts:tt)*) => {
+        newtype_wrap_un_op! { trait: (::std::ops::Not)::not, kind: simple, item: $($tts)* }
+    };
+    ((&self) $($tts:tt)*) => {
+        newtype_wrap_un_op! { trait: (::std::ops::Not)::not, kind: simple_ref, item: $($tts)* }
+    };
+}
+
+#[macro_export]
+macro_rules! NewtypeDeref {
+    (() $(pub)* struct $name:ident(pub $t0:ty);) => {
+        impl ::std::ops::Deref for $name {
+            type Target = $t0;
+            fn deref(&self) -> &Self::Target {
+                &self.0
+            }
+        }
+    };
+
+    (() $(pub)* struct $name:ident($t0:ty);) => {
+        impl ::std::ops::Deref for $name {
+            type Target = $t0;
+            fn deref(&self) -> &Self::Target {
+                &self.0
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! NewtypeDerefMut {
+    (() $(pub)* struct $name:ident(pub $t0:ty);) => {
+        impl ::std::ops::DerefMut for $name {
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.0
+            }
+        }
+    };
+
+    (() $(pub)* struct $name:ident($t0:ty);) => {
+        impl ::std::ops::DerefMut for $name {
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.0
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! NewtypeIndex {
+    (($index_ty:ty) $(pub)* struct $name:ident(pub $t0:ty);) => {
+        impl ::std::ops::Index<$index_ty> for $name {
+            type Output = <$t0 as ::std::ops::Index<$index_ty>>::Output;
+            fn index(&self, index: $index_ty) -> &Self::Output {
+                (&self.0).index(index)
+            }
+        }
+    };
+
+    (($index_ty:ty) $(pub)* struct $name:ident($t0:ty);) => {
+        impl ::std::ops::Index<$index_ty> for $name {
+            type Output = <$t0 as ::std::ops::Index<$index_ty>>::Output;
+            fn index(&self, index: $index_ty) -> &Self::Output {
+                (&self.0).index(index)
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! NewtypeIndexMut {
+    (($index_ty:ty) $(pub)* struct $name:ident(pub $t0:ty);) => {
+        impl ::std::ops::IndexMut<$index_ty> for $name {
+            fn index_mut(&mut self, index: $index_ty) -> &mut Self::Output {
+                (&mut self.0).index_mut(index)
+            }
+        }
+    };
+
+    (($index_ty:ty) $(pub)* struct $name:ident($t0:ty);) => {
+        impl ::std::ops::IndexMut<$index_ty> for $name {
+            fn index_mut(&mut self, index: $index_ty) -> &mut Self::Output {
+                (&mut self.0).index_mut(index)
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! NewtypeFrom {
+    (() $(pub)* struct $name:ident(pub $t0:ty);) => {
+        impl ::std::convert::From<$t0> for $name {
+            fn from(v: $t0) -> Self {
+                $name(v)
+            }
+        }
+        impl ::std::convert::From<$name> for $t0 {
+            fn from(v: $name) -> Self {
+                v.0
+            }
+        }
+    };
+
+    (() $(pub)* struct $name:ident($t0:ty);) => {
+        impl ::std::convert::From<$t0> for $name {
+            fn from(v: $t0) -> Self {
+                $name(v)
+            }
+        }
+        impl ::std::convert::From<$name> for $t0 {
+            fn from(v: $name) -> Self {
+                v.0
+            }
+        }
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! newtype_fmt {
+    ($fmt_trait:ident, $name:ident) => {
+        impl ::std::fmt::$fmt_trait for $name {
+            fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                ::std::fmt::$fmt_trait::fmt(&self.0, fmt)
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! NewtypeBinary {
+    (() $(pub)* struct $name:ident $_field:tt;) => {
+        newtype_fmt! { Binary, $name }
+    };
+}
+
+#[macro_export]
+macro_rules! NewtypeDebug {
+    (() $(pub)* struct $name:ident $_field:tt;) => {
+        newtype_fmt! { Debug, $name }
+    };
+}
+
+#[macro_export]
+macro_rules! NewtypeDisplay {
+    (() $(pub)* struct $name:ident $_field:tt;) => {
+        newtype_fmt! { Display, $name }
+    };
+}
+
+#[macro_export]
+macro_rules! NewtypeLowerExp {
+    (() $(pub)* struct $name:ident $_field:tt;) => {
+        newtype_fmt! { LowerExp, $name }
+    };
+}
+
+#[macro_export]
+macro_rules! NewtypeLowerHex {
+    (() $(pub)* struct $name:ident $_field:tt;) => {
+        newtype_fmt! { LowerHex, $name }
+    };
+}
+
+#[macro_export]
+macro_rules! NewtypeOctal {
+    (() $(pub)* struct $name:ident $_field:tt;) => {
+        newtype_fmt! { Octal, $name }
+    };
+}
+
+#[macro_export]
+macro_rules! NewtypePointer {
+    (() $(pub)* struct $name:ident $_field:tt;) => {
+        newtype_fmt! { Pointer, $name }
+    };
+}
+
+#[macro_export]
+macro_rules! NewtypeUpperExp {
+    (() $(pub)* struct $name:ident $_field:tt;) => {
+        newtype_fmt! { UpperExp, $name }
+    };
+}
+
+#[macro_export]
+macro_rules! NewtypeUpperHex {
+    (() $(pub)* struct $name:ident $_field:tt;) => {
+        newtype_fmt! { UpperHex, $name }
     };
 }
