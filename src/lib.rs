@@ -211,7 +211,7 @@ pub use core::ops::Sub as std_ops_Sub;
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! newtype_as_item {
+macro_rules! as_item {
     ($i:item) => {$i};
 }
 
@@ -223,7 +223,7 @@ macro_rules! newtype_wrap_bin_op {
         kind: simple,
         item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl $($tr)*<$name> for $name {
                 type Output = $name;
                 fn $meth(self, rhs: Self) -> $name {
@@ -238,7 +238,7 @@ macro_rules! newtype_wrap_bin_op {
         kind: simple,
         item: $vis:vis struct $name:ident($t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl $($tr)*<$name> for $name {
                 type Output = $name;
                 fn $meth(self, rhs: Self) -> $name {
@@ -253,7 +253,7 @@ macro_rules! newtype_wrap_bin_op {
         kind: simple_ref,
         item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl<'a> $($tr)*<&'a $name> for &'a $name {
                 type Output = $name;
                 fn $meth(self, rhs: Self) -> $name {
@@ -268,7 +268,7 @@ macro_rules! newtype_wrap_bin_op {
         kind: simple_ref,
         item: $vis:vis struct $name:ident($t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl<'a> $($tr)*<&'a $name> for &'a $name {
                 type Output = $name;
                 fn $meth(self, rhs: Self) -> $name {
@@ -283,7 +283,7 @@ macro_rules! newtype_wrap_bin_op {
         kind: rhs_rewrap(&Self),
         item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl<'a> $($tr)*<&'a $name> for $name {
                 type Output = $name;
                 fn $meth(self, rhs: &'a $name) -> $name {
@@ -298,7 +298,7 @@ macro_rules! newtype_wrap_bin_op {
         kind: rhs_rewrap(&Self),
         item: $vis:vis struct $name:ident($t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl<'a> $($tr)*<&'a $name> for $name {
                 type Output = $name;
                 fn $meth(self, rhs: &'a $name) -> $name {
@@ -313,7 +313,7 @@ macro_rules! newtype_wrap_bin_op {
         kind: rhs_rewrap($rhs:ty),
         item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl $($tr)*<$rhs> for $name {
                 type Output = $name;
                 fn $meth(self, rhs: $rhs) -> $name {
@@ -328,7 +328,7 @@ macro_rules! newtype_wrap_bin_op {
         kind: rhs_rewrap($rhs:ty),
         item: $vis:vis struct $name:ident($t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl $($tr)*<$rhs> for $name {
                 type Output = $name;
                 fn $meth(self, rhs: $rhs) -> $name {
@@ -343,7 +343,7 @@ macro_rules! newtype_wrap_bin_op {
         kind: ref_rhs_rewrap(Self),
         item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl<'a> $($tr)*<$name> for &'a $name {
                 type Output = $name;
                 fn $meth(self, rhs: $name) -> $name {
@@ -358,7 +358,7 @@ macro_rules! newtype_wrap_bin_op {
         kind: ref_rhs_rewrap(Self),
         item: $vis:vis struct $name:ident($t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl<'a> $($tr)*<$name> for &'a $name {
                 type Output = $name;
                 fn $meth(self, rhs: $name) -> $name {
@@ -373,7 +373,7 @@ macro_rules! newtype_wrap_bin_op {
         kind: ref_rhs_rewrap($rhs:ty),
         item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl<'a> $($tr)*<$rhs> for &'a $name {
                 type Output = $name;
                 fn $meth(self, rhs: $rhs) -> $name {
@@ -388,7 +388,7 @@ macro_rules! newtype_wrap_bin_op {
         kind: ref_rhs_rewrap($rhs:ty),
         item: $vis:vis struct $name:ident($t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl<'a> $($tr)*<$rhs> for &'a $name {
                 type Output = $name;
                 fn $meth(self, rhs: $rhs) -> $name {
@@ -407,7 +407,7 @@ macro_rules! newtype_wrap_bin_op_assign {
         kind: simple,
         item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl $($tr)*<$name> for $name {
                 fn $meth(&mut self, rhs: Self) {
                     (self.0).$meth(rhs.0)
@@ -421,7 +421,7 @@ macro_rules! newtype_wrap_bin_op_assign {
         kind: simple,
         item: $vis:vis struct $name:ident($t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl $($tr)*<$name> for $name {
                 fn $meth(&mut self, rhs: Self) {
                     (self.0).$meth(rhs.0)
@@ -435,7 +435,7 @@ macro_rules! newtype_wrap_bin_op_assign {
         kind: rhs(&Self),
         item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl<'a> $($tr)*<&'a $name> for $name {
                 fn $meth(&mut self, rhs: &'a $name) {
                     (self.0).$meth(rhs.0)
@@ -449,7 +449,7 @@ macro_rules! newtype_wrap_bin_op_assign {
         kind: rhs(&Self),
         item: $vis:vis struct $name:ident($t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl<'a> $($tr)*<&'a $name> for $name {
                 fn $meth(&mut self, rhs: &'a $name) {
                     (self.0).$meth(rhs.0)
@@ -463,7 +463,7 @@ macro_rules! newtype_wrap_bin_op_assign {
         kind: rhs($rhs:ty),
         item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl $($tr)*<$rhs> for $name {
                 fn $meth(&mut self, rhs: $rhs) {
                     (self.0).$meth(rhs)
@@ -477,7 +477,7 @@ macro_rules! newtype_wrap_bin_op_assign {
         kind: rhs($rhs:ty),
         item: $vis:vis struct $name:ident($t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl $($tr)*<$rhs> for $name {
                 fn $meth(&mut self, rhs: $rhs) {
                     (self.0).$meth(rhs)
@@ -495,7 +495,7 @@ macro_rules! newtype_wrap_un_op {
         kind: simple,
         item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl $($tr)* for $name {
                 type Output = $name;
                 fn $meth(self) -> $name {
@@ -510,7 +510,7 @@ macro_rules! newtype_wrap_un_op {
         kind: simple,
         item: $vis:vis struct $name:ident($t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl $($tr)* for $name {
                 type Output = $name;
                 fn $meth(self) -> $name {
@@ -525,7 +525,7 @@ macro_rules! newtype_wrap_un_op {
         kind: simple_ref,
         item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl<'a> $($tr)* for &'a $name {
                 type Output = $name;
                 fn $meth(self) -> $name {
@@ -540,7 +540,7 @@ macro_rules! newtype_wrap_un_op {
         kind: simple_ref,
         item: $vis:vis struct $name:ident($t:ty);
     ) => {
-        $crate::newtype_as_item! {
+        $crate::as_item! {
             impl<'a> $($tr)* for &'a $name {
                 type Output = $name;
                 fn $meth(self) -> $name {
@@ -796,7 +796,6 @@ macro_rules! NewtypeNeg {
     };
 }
 
-// ntuop Not,      not
 #[macro_export]
 macro_rules! NewtypeNot {
     ((*) $($tts:tt)*) => {
@@ -817,9 +816,7 @@ macro_rules! NewtypeDeref {
         impl $crate::std_ops_Deref for $name {
             type Target = $t0;
 
-            fn deref(&self) -> &Self::Target {
-                &self.0
-            }
+            fn deref(&self) -> &Self::Target { &self.0 }
         }
     };
 
@@ -827,9 +824,7 @@ macro_rules! NewtypeDeref {
         impl $crate::std_ops_Deref for $name {
             type Target = $t0;
 
-            fn deref(&self) -> &Self::Target {
-                &self.0
-            }
+            fn deref(&self) -> &Self::Target { &self.0 }
         }
     };
 }
@@ -838,16 +833,12 @@ macro_rules! NewtypeDeref {
 macro_rules! NewtypeDerefMut {
     (() $vis:vis struct $name:ident(pub $t0:ty);) => {
         impl $crate::std_ops_DerefMut for $name {
-            fn deref_mut(&mut self) -> &mut Self::Target {
-                &mut self.0
-            }
+            fn deref_mut(&mut self) -> &mut Self::Target { &mut self.0 }
         }
     };
     (() $vis:vis struct $name:ident($t0:ty);) => {
         impl $crate::std_ops_DerefMut for $name {
-            fn deref_mut(&mut self) -> &mut Self::Target {
-                &mut self.0
-            }
+            fn deref_mut(&mut self) -> &mut Self::Target { &mut self.0 }
         }
     };
 }
@@ -896,26 +887,20 @@ macro_rules! NewtypeIndexMut {
 macro_rules! NewtypeFrom {
     (() $vis:vis struct $name:ident(pub $t0:ty);) => {
         impl $crate::std_convert_From<$t0> for $name {
-            fn from(v: $t0) -> Self {
-                $name(v)
-            }
+            fn from(v: $t0) -> Self { $name(v) }
         }
+
         impl $crate::std_convert_From<$name> for $t0 {
-            fn from(v: $name) -> Self {
-                v.0
-            }
+            fn from(v: $name) -> Self { v.0 }
         }
     };
     (() $vis:vis struct $name:ident($t0:ty);) => {
         impl $crate::std_convert_From<$t0> for $name {
-            fn from(v: $t0) -> Self {
-                $name(v)
-            }
+            fn from(v: $t0) -> Self { $name(v) }
         }
+
         impl $crate::std_convert_From<$name> for $t0 {
-            fn from(v: $name) -> Self {
-                v.0
-            }
+            fn from(v: $name) -> Self { v.0 }
         }
     };
 }
