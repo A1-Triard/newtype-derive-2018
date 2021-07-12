@@ -155,7 +155,25 @@
 #[doc(hidden)]
 pub use core::convert::From as std_convert_From;
 #[doc(hidden)]
+pub use core::fmt::Binary as std_fmt_Binary;
+#[doc(hidden)]
+pub use core::fmt::Debug as std_fmt_Debug;
+#[doc(hidden)]
+pub use core::fmt::Display as std_fmt_Display;
+#[doc(hidden)]
 pub use core::fmt::Formatter as std_fmt_Formatter;
+#[doc(hidden)]
+pub use core::fmt::LowerExp as std_fmt_LowerExp;
+#[doc(hidden)]
+pub use core::fmt::LowerHex as std_fmt_LowerHex;
+#[doc(hidden)]
+pub use core::fmt::Octal as std_fmt_Octal;
+#[doc(hidden)]
+pub use core::fmt::Pointer as std_fmt_Pointer;
+#[doc(hidden)]
+pub use core::fmt::UpperExp as std_fmt_UpperExp;
+#[doc(hidden)]
+pub use core::fmt::UpperHex as std_fmt_UpperHex;
 #[doc(hidden)]
 pub use core::fmt::Result as std_fmt_Result;
 #[doc(hidden)]
@@ -190,10 +208,6 @@ pub use core::ops::Shl as std_ops_Shl;
 pub use core::ops::Shr as std_ops_Shr;
 #[doc(hidden)]
 pub use core::ops::Sub as std_ops_Sub;
-
-
-//::std::fmt::$fmt_trait::fmt(&self.0, fmt)
-//::std::fmt::$fmt_trait for $name {
 
 #[doc(hidden)]
 #[macro_export]
@@ -906,77 +920,101 @@ macro_rules! NewtypeFrom {
     };
 }
 
-#[doc(hidden)]
 #[macro_export]
-macro_rules! newtype_fmt {
-    ($fmt_trait:ident, $name:ident) => {
-        impl ::std::fmt::$fmt_trait for $name {
+macro_rules! NewtypeBinary {
+    (() $(pub)* struct $name:ident $_field:tt;) => {
+        impl $crate::std_fmt_Binary for $name {
             fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
-                ::std::fmt::$fmt_trait::fmt(&self.0, fmt)
+                $crate::std_fmt_Binary::fmt(&self.0, fmt)
             }
         }
     };
 }
 
 #[macro_export]
-macro_rules! NewtypeBinary {
-    (() $(pub)* struct $name:ident $_field:tt;) => {
-        $crate::newtype_fmt! { Binary, $name }
-    };
-}
-
-#[macro_export]
 macro_rules! NewtypeDebug {
     (() $(pub)* struct $name:ident $_field:tt;) => {
-        $crate::newtype_fmt! { Debug, $name }
+        impl $crate::std_fmt_Debug for $name {
+            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
+                $crate::std_fmt_Debug::fmt(&self.0, fmt)
+            }
+        }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeDisplay {
     (() $(pub)* struct $name:ident $_field:tt;) => {
-        $crate::newtype_fmt! { Display, $name }
+        impl $crate::std_fmt_Display for $name {
+            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
+                $crate::std_fmt_Display::fmt(&self.0, fmt)
+            }
+        }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeLowerExp {
     (() $(pub)* struct $name:ident $_field:tt;) => {
-        $crate::newtype_fmt! { LowerExp, $name }
+        impl $crate::std_fmt_LowerExp for $name {
+            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
+                $crate::std_fmt_LowerExp::fmt(&self.0, fmt)
+            }
+        }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeLowerHex {
     (() $(pub)* struct $name:ident $_field:tt;) => {
-        $crate::newtype_fmt! { LowerHex, $name }
+        impl $crate::std_fmt_LowerHex for $name {
+            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
+                $crate::std_fmt_LowerHex::fmt(&self.0, fmt)
+            }
+        }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeOctal {
     (() $(pub)* struct $name:ident $_field:tt;) => {
-        $crate::newtype_fmt! { Octal, $name }
+        impl $crate::std_fmt_Octal for $name {
+            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
+                $crate::std_fmt_Octal::fmt(&self.0, fmt)
+            }
+        }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypePointer {
     (() $(pub)* struct $name:ident $_field:tt;) => {
-        $crate::newtype_fmt! { Pointer, $name }
+        impl $crate::std_fmt_Pointer for $name {
+            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
+                $crate::std_fmt_Pointer::fmt(&self.0, fmt)
+            }
+        }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeUpperExp {
     (() $(pub)* struct $name:ident $_field:tt;) => {
-        $crate::newtype_fmt! { UpperExp, $name }
+        impl $crate::std_fmt_UpperExp for $name {
+            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
+                $crate::std_fmt_UpperExp::fmt(&self.0, fmt)
+            }
+        }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeUpperHex {
     (() $(pub)* struct $name:ident $_field:tt;) => {
-        $crate::newtype_fmt! { UpperHex, $name }
+        impl $crate::std_fmt_UpperHex for $name {
+            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
+                $crate::std_fmt_UpperHex::fmt(&self.0, fmt)
+            }
+        }
     };
 }
