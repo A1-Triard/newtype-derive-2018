@@ -221,7 +221,7 @@ macro_rules! newtype_wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple,
-        item: $(pub)* struct $name:ident(pub $t:ty);
+        item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl $($tr)*<$name> for $name {
@@ -236,7 +236,7 @@ macro_rules! newtype_wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple,
-        item: $(pub)* struct $name:ident($t:ty);
+        item: $vis:vis struct $name:ident($t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl $($tr)*<$name> for $name {
@@ -251,7 +251,7 @@ macro_rules! newtype_wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple_ref,
-        item: $(pub)* struct $name:ident(pub $t:ty);
+        item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl<'a> $($tr)*<&'a $name> for &'a $name {
@@ -266,7 +266,7 @@ macro_rules! newtype_wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple_ref,
-        item: $(pub)* struct $name:ident($t:ty);
+        item: $vis:vis struct $name:ident($t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl<'a> $($tr)*<&'a $name> for &'a $name {
@@ -281,7 +281,7 @@ macro_rules! newtype_wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: rhs_rewrap(&Self),
-        item: $(pub)* struct $name:ident(pub $t:ty);
+        item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl<'a> $($tr)*<&'a $name> for $name {
@@ -296,7 +296,7 @@ macro_rules! newtype_wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: rhs_rewrap(&Self),
-        item: $(pub)* struct $name:ident($t:ty);
+        item: $vis:vis struct $name:ident($t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl<'a> $($tr)*<&'a $name> for $name {
@@ -311,7 +311,7 @@ macro_rules! newtype_wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: rhs_rewrap($rhs:ty),
-        item: $(pub)* struct $name:ident(pub $t:ty);
+        item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl $($tr)*<$rhs> for $name {
@@ -326,7 +326,7 @@ macro_rules! newtype_wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: rhs_rewrap($rhs:ty),
-        item: $(pub)* struct $name:ident($t:ty);
+        item: $vis:vis struct $name:ident($t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl $($tr)*<$rhs> for $name {
@@ -341,7 +341,7 @@ macro_rules! newtype_wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: ref_rhs_rewrap(Self),
-        item: $(pub)* struct $name:ident(pub $t:ty);
+        item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl<'a> $($tr)*<$name> for &'a $name {
@@ -356,7 +356,7 @@ macro_rules! newtype_wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: ref_rhs_rewrap(Self),
-        item: $(pub)* struct $name:ident($t:ty);
+        item: $vis:vis struct $name:ident($t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl<'a> $($tr)*<$name> for &'a $name {
@@ -371,7 +371,7 @@ macro_rules! newtype_wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: ref_rhs_rewrap($rhs:ty),
-        item: $(pub)* struct $name:ident(pub $t:ty);
+        item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl<'a> $($tr)*<$rhs> for &'a $name {
@@ -386,7 +386,7 @@ macro_rules! newtype_wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: ref_rhs_rewrap($rhs:ty),
-        item: $(pub)* struct $name:ident($t:ty);
+        item: $vis:vis struct $name:ident($t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl<'a> $($tr)*<$rhs> for &'a $name {
@@ -405,7 +405,7 @@ macro_rules! newtype_wrap_bin_op_assign {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple,
-        item: $(pub)* struct $name:ident(pub $t:ty);
+        item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl $($tr)*<$name> for $name {
@@ -419,7 +419,7 @@ macro_rules! newtype_wrap_bin_op_assign {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple,
-        item: $(pub)* struct $name:ident($t:ty);
+        item: $vis:vis struct $name:ident($t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl $($tr)*<$name> for $name {
@@ -433,7 +433,7 @@ macro_rules! newtype_wrap_bin_op_assign {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: rhs(&Self),
-        item: $(pub)* struct $name:ident(pub $t:ty);
+        item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl<'a> $($tr)*<&'a $name> for $name {
@@ -447,7 +447,7 @@ macro_rules! newtype_wrap_bin_op_assign {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: rhs(&Self),
-        item: $(pub)* struct $name:ident($t:ty);
+        item: $vis:vis struct $name:ident($t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl<'a> $($tr)*<&'a $name> for $name {
@@ -461,7 +461,7 @@ macro_rules! newtype_wrap_bin_op_assign {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: rhs($rhs:ty),
-        item: $(pub)* struct $name:ident(pub $t:ty);
+        item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl $($tr)*<$rhs> for $name {
@@ -475,7 +475,7 @@ macro_rules! newtype_wrap_bin_op_assign {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: rhs($rhs:ty),
-        item: $(pub)* struct $name:ident($t:ty);
+        item: $vis:vis struct $name:ident($t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl $($tr)*<$rhs> for $name {
@@ -493,7 +493,7 @@ macro_rules! newtype_wrap_un_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple,
-        item: $(pub)* struct $name:ident(pub $t:ty);
+        item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl $($tr)* for $name {
@@ -508,7 +508,7 @@ macro_rules! newtype_wrap_un_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple,
-        item: $(pub)* struct $name:ident($t:ty);
+        item: $vis:vis struct $name:ident($t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl $($tr)* for $name {
@@ -523,7 +523,7 @@ macro_rules! newtype_wrap_un_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple_ref,
-        item: $(pub)* struct $name:ident(pub $t:ty);
+        item: $vis:vis struct $name:ident(pub $t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl<'a> $($tr)* for &'a $name {
@@ -538,7 +538,7 @@ macro_rules! newtype_wrap_un_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple_ref,
-        item: $(pub)* struct $name:ident($t:ty);
+        item: $vis:vis struct $name:ident($t:ty);
     ) => {
         $crate::newtype_as_item! {
             impl<'a> $($tr)* for &'a $name {
@@ -813,7 +813,7 @@ macro_rules! NewtypeNot {
 
 #[macro_export]
 macro_rules! NewtypeDeref {
-    (() $(pub)* struct $name:ident(pub $t0:ty);) => {
+    (() $vis:vis struct $name:ident(pub $t0:ty);) => {
         impl $crate::std_ops_Deref for $name {
             type Target = $t0;
             fn deref(&self) -> &Self::Target {
@@ -822,7 +822,7 @@ macro_rules! NewtypeDeref {
         }
     };
 
-    (() $(pub)* struct $name:ident($t0:ty);) => {
+    (() $vis:vis struct $name:ident($t0:ty);) => {
         impl $crate::std_ops_Deref for $name {
             type Target = $t0;
             fn deref(&self) -> &Self::Target {
@@ -834,7 +834,7 @@ macro_rules! NewtypeDeref {
 
 #[macro_export]
 macro_rules! NewtypeDerefMut {
-    (() $(pub)* struct $name:ident(pub $t0:ty);) => {
+    (() $vis:vis struct $name:ident(pub $t0:ty);) => {
         impl $crate::std_ops_DerefMut for $name {
             fn deref_mut(&mut self) -> &mut Self::Target {
                 &mut self.0
@@ -842,7 +842,7 @@ macro_rules! NewtypeDerefMut {
         }
     };
 
-    (() $(pub)* struct $name:ident($t0:ty);) => {
+    (() $vis:vis struct $name:ident($t0:ty);) => {
         impl $crate::std_ops_DerefMut for $name {
             fn deref_mut(&mut self) -> &mut Self::Target {
                 &mut self.0
@@ -853,7 +853,7 @@ macro_rules! NewtypeDerefMut {
 
 #[macro_export]
 macro_rules! NewtypeIndex {
-    (($index_ty:ty) $(pub)* struct $name:ident(pub $t0:ty);) => {
+    (($index_ty:ty) $vis:vis struct $name:ident(pub $t0:ty);) => {
         impl $crate::std_ops_Index<$index_ty> for $name {
             type Output = <$t0 as $crate::std_ops_Index<$index_ty>>::Output;
             fn index(&self, index: $index_ty) -> &Self::Output {
@@ -862,7 +862,7 @@ macro_rules! NewtypeIndex {
         }
     };
 
-    (($index_ty:ty) $(pub)* struct $name:ident($t0:ty);) => {
+    (($index_ty:ty) $vis:vis struct $name:ident($t0:ty);) => {
         impl $crate::std_ops_Index<$index_ty> for $name {
             type Output = <$t0 as $crate::std_ops_Index<$index_ty>>::Output;
             fn index(&self, index: $index_ty) -> &Self::Output {
@@ -874,7 +874,7 @@ macro_rules! NewtypeIndex {
 
 #[macro_export]
 macro_rules! NewtypeIndexMut {
-    (($index_ty:ty) $(pub)* struct $name:ident(pub $t0:ty);) => {
+    (($index_ty:ty) $vis:vis struct $name:ident(pub $t0:ty);) => {
         impl $crate::std_ops_IndexMut<$index_ty> for $name {
             fn index_mut(&mut self, index: $index_ty) -> &mut Self::Output {
                 (&mut self.0).index_mut(index)
@@ -882,7 +882,7 @@ macro_rules! NewtypeIndexMut {
         }
     };
 
-    (($index_ty:ty) $(pub)* struct $name:ident($t0:ty);) => {
+    (($index_ty:ty) $vis:vis struct $name:ident($t0:ty);) => {
         impl $crate::std_ops_IndexMut<$index_ty> for $name {
             fn index_mut(&mut self, index: $index_ty) -> &mut Self::Output {
                 (&mut self.0).index_mut(index)
@@ -893,7 +893,7 @@ macro_rules! NewtypeIndexMut {
 
 #[macro_export]
 macro_rules! NewtypeFrom {
-    (() $(pub)* struct $name:ident(pub $t0:ty);) => {
+    (() $vis:vis struct $name:ident(pub $t0:ty);) => {
         impl $crate::std_convert_From<$t0> for $name {
             fn from(v: $t0) -> Self {
                 $name(v)
@@ -906,7 +906,7 @@ macro_rules! NewtypeFrom {
         }
     };
 
-    (() $(pub)* struct $name:ident($t0:ty);) => {
+    (() $vis:vis struct $name:ident($t0:ty);) => {
         impl $crate::std_convert_From<$t0> for $name {
             fn from(v: $t0) -> Self {
                 $name(v)
@@ -922,7 +922,7 @@ macro_rules! NewtypeFrom {
 
 #[macro_export]
 macro_rules! NewtypeBinary {
-    (() $(pub)* struct $name:ident $_field:tt;) => {
+    (() $vis:vis struct $name:ident $_field:tt;) => {
         impl $crate::std_fmt_Binary for $name {
             fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
                 $crate::std_fmt_Binary::fmt(&self.0, fmt)
@@ -933,7 +933,7 @@ macro_rules! NewtypeBinary {
 
 #[macro_export]
 macro_rules! NewtypeDebug {
-    (() $(pub)* struct $name:ident $_field:tt;) => {
+    (() $vis:vis struct $name:ident $_field:tt;) => {
         impl $crate::std_fmt_Debug for $name {
             fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
                 $crate::std_fmt_Debug::fmt(&self.0, fmt)
@@ -944,7 +944,7 @@ macro_rules! NewtypeDebug {
 
 #[macro_export]
 macro_rules! NewtypeDisplay {
-    (() $(pub)* struct $name:ident $_field:tt;) => {
+    (() $vis:vis struct $name:ident $_field:tt;) => {
         impl $crate::std_fmt_Display for $name {
             fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
                 $crate::std_fmt_Display::fmt(&self.0, fmt)
@@ -955,7 +955,7 @@ macro_rules! NewtypeDisplay {
 
 #[macro_export]
 macro_rules! NewtypeLowerExp {
-    (() $(pub)* struct $name:ident $_field:tt;) => {
+    (() $vis:vis struct $name:ident $_field:tt;) => {
         impl $crate::std_fmt_LowerExp for $name {
             fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
                 $crate::std_fmt_LowerExp::fmt(&self.0, fmt)
@@ -966,7 +966,7 @@ macro_rules! NewtypeLowerExp {
 
 #[macro_export]
 macro_rules! NewtypeLowerHex {
-    (() $(pub)* struct $name:ident $_field:tt;) => {
+    (() $vis:vis struct $name:ident $_field:tt;) => {
         impl $crate::std_fmt_LowerHex for $name {
             fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
                 $crate::std_fmt_LowerHex::fmt(&self.0, fmt)
@@ -977,7 +977,7 @@ macro_rules! NewtypeLowerHex {
 
 #[macro_export]
 macro_rules! NewtypeOctal {
-    (() $(pub)* struct $name:ident $_field:tt;) => {
+    (() $vis:vis struct $name:ident $_field:tt;) => {
         impl $crate::std_fmt_Octal for $name {
             fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
                 $crate::std_fmt_Octal::fmt(&self.0, fmt)
@@ -988,7 +988,7 @@ macro_rules! NewtypeOctal {
 
 #[macro_export]
 macro_rules! NewtypePointer {
-    (() $(pub)* struct $name:ident $_field:tt;) => {
+    (() $vis:vis struct $name:ident $_field:tt;) => {
         impl $crate::std_fmt_Pointer for $name {
             fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
                 $crate::std_fmt_Pointer::fmt(&self.0, fmt)
@@ -999,7 +999,7 @@ macro_rules! NewtypePointer {
 
 #[macro_export]
 macro_rules! NewtypeUpperExp {
-    (() $(pub)* struct $name:ident $_field:tt;) => {
+    (() $vis:vis struct $name:ident $_field:tt;) => {
         impl $crate::std_fmt_UpperExp for $name {
             fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
                 $crate::std_fmt_UpperExp::fmt(&self.0, fmt)
@@ -1010,7 +1010,7 @@ macro_rules! NewtypeUpperExp {
 
 #[macro_export]
 macro_rules! NewtypeUpperHex {
-    (() $(pub)* struct $name:ident $_field:tt;) => {
+    (() $vis:vis struct $name:ident $_field:tt;) => {
         impl $crate::std_fmt_UpperHex for $name {
             fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
                 $crate::std_fmt_UpperHex::fmt(&self.0, fmt)
