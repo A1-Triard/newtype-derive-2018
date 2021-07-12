@@ -11,9 +11,5 @@ categories = ["rust-patterns", "no-std"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/A1-Triard/newtype-derive-2018"
 
-[features]
-default = ["std"]
-std = []
-
 [dev-dependencies]
 macro-attr-2018 = "1.1.0"
