@@ -816,6 +816,7 @@ macro_rules! NewtypeDeref {
     (() $vis:vis struct $name:ident(pub $t0:ty);) => {
         impl $crate::std_ops_Deref for $name {
             type Target = $t0;
+
             fn deref(&self) -> &Self::Target {
                 &self.0
             }
@@ -825,6 +826,7 @@ macro_rules! NewtypeDeref {
     (() $vis:vis struct $name:ident($t0:ty);) => {
         impl $crate::std_ops_Deref for $name {
             type Target = $t0;
+
             fn deref(&self) -> &Self::Target {
                 &self.0
             }
@@ -841,7 +843,6 @@ macro_rules! NewtypeDerefMut {
             }
         }
     };
-
     (() $vis:vis struct $name:ident($t0:ty);) => {
         impl $crate::std_ops_DerefMut for $name {
             fn deref_mut(&mut self) -> &mut Self::Target {
@@ -853,20 +854,21 @@ macro_rules! NewtypeDerefMut {
 
 #[macro_export]
 macro_rules! NewtypeIndex {
-    (($index_ty:ty) $vis:vis struct $name:ident(pub $t0:ty);) => {
-        impl $crate::std_ops_Index<$index_ty> for $name {
-            type Output = <$t0 as $crate::std_ops_Index<$index_ty>>::Output;
-            fn index(&self, index: $index_ty) -> &Self::Output {
-                (&self.0).index(index)
+    (($Index:ty) $vis:vis struct $name:ident(pub $t0:ty);) => {
+        impl $crate::std_ops_Index<$Index> for $name {
+            type Output = <$t0 as $crate::std_ops_Index<$Index>>::Output;
+
+            fn index(&self, index: $Index) -> &Self::Output {
+                <$t0 as $crate::std_ops_Index<$Index>>::index(&self.0, index)
             }
         }
     };
+    (($Index:ty) $vis:vis struct $name:ident($t0:ty);) => {
+        impl $crate::std_ops_Index<$Index> for $name {
+            type Output = <$t0 as $crate::std_ops_Index<$Index>>::Output;
 
-    (($index_ty:ty) $vis:vis struct $name:ident($t0:ty);) => {
-        impl $crate::std_ops_Index<$index_ty> for $name {
-            type Output = <$t0 as $crate::std_ops_Index<$index_ty>>::Output;
-            fn index(&self, index: $index_ty) -> &Self::Output {
-                (&self.0).index(index)
+            fn index(&self, index: $Index) -> &Self::Output {
+                <$t0 as $crate::std_ops_Index<$Index>>::index(&self.0, index)
             }
         }
     };
@@ -874,18 +876,17 @@ macro_rules! NewtypeIndex {
 
 #[macro_export]
 macro_rules! NewtypeIndexMut {
-    (($index_ty:ty) $vis:vis struct $name:ident(pub $t0:ty);) => {
-        impl $crate::std_ops_IndexMut<$index_ty> for $name {
-            fn index_mut(&mut self, index: $index_ty) -> &mut Self::Output {
-                (&mut self.0).index_mut(index)
+    (($Index:ty) $vis:vis struct $name:ident(pub $t0:ty);) => {
+        impl $crate::std_ops_IndexMut<$Index> for $name {
+            fn index_mut(&mut self, index: $Index) -> &mut Self::Output {
+                <$t0 as $crate::std_ops_IndexMut<$Index>>::index_mut(&mut self.0, index)
             }
         }
     };
-
-    (($index_ty:ty) $vis:vis struct $name:ident($t0:ty);) => {
-        impl $crate::std_ops_IndexMut<$index_ty> for $name {
-            fn index_mut(&mut self, index: $index_ty) -> &mut Self::Output {
-                (&mut self.0).index_mut(index)
+    (($Index:ty) $vis:vis struct $name:ident($t0:ty);) => {
+        impl $crate::std_ops_IndexMut<$Index> for $name {
+            fn index_mut(&mut self, index: $Index) -> &mut Self::Output {
+                <$t0 as $crate::std_ops_IndexMut<$Index>>::index_mut(&mut self.0, index)
             }
         }
     };
@@ -905,7 +906,6 @@ macro_rules! NewtypeFrom {
             }
         }
     };
-
     (() $vis:vis struct $name:ident($t0:ty);) => {
         impl $crate::std_convert_From<$t0> for $name {
             fn from(v: $t0) -> Self {
@@ -920,9 +920,17 @@ macro_rules! NewtypeFrom {
     };
 }
 
+
 #[macro_export]
 macro_rules! NewtypeBinary {
-    (() $vis:vis struct $name:ident $_field:tt;) => {
+    (() $vis:vis struct $name:ident(pub $t0:ty);) => {
+        impl $crate::std_fmt_Binary for $name {
+            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
+                $crate::std_fmt_Binary::fmt(&self.0, fmt)
+            }
+        }
+    };
+    (() $vis:vis struct $name:ident($t0:ty);) => {
         impl $crate::std_fmt_Binary for $name {
             fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
                 $crate::std_fmt_Binary::fmt(&self.0, fmt)
@@ -933,7 +941,14 @@ macro_rules! NewtypeBinary {
 
 #[macro_export]
 macro_rules! NewtypeDebug {
-    (() $vis:vis struct $name:ident $_field:tt;) => {
+    (() $vis:vis struct $name:ident(pub $t0:ty);) => {
+        impl $crate::std_fmt_Debug for $name {
+            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
+                $crate::std_fmt_Debug::fmt(&self.0, fmt)
+            }
+        }
+    };
+    (() $vis:vis struct $name:ident($t0:ty);) => {
         impl $crate::std_fmt_Debug for $name {
             fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
                 $crate::std_fmt_Debug::fmt(&self.0, fmt)
@@ -944,7 +959,14 @@ macro_rules! NewtypeDebug {
 
 #[macro_export]
 macro_rules! NewtypeDisplay {
-    (() $vis:vis struct $name:ident $_field:tt;) => {
+    (() $vis:vis struct $name:ident(pub $t0:ty);) => {
+        impl $crate::std_fmt_Display for $name {
+            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
+                $crate::std_fmt_Display::fmt(&self.0, fmt)
+            }
+        }
+    };
+    (() $vis:vis struct $name:ident($t0:ty);) => {
         impl $crate::std_fmt_Display for $name {
             fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
                 $crate::std_fmt_Display::fmt(&self.0, fmt)
@@ -955,7 +977,14 @@ macro_rules! NewtypeDisplay {
 
 #[macro_export]
 macro_rules! NewtypeLowerExp {
-    (() $vis:vis struct $name:ident $_field:tt;) => {
+    (() $vis:vis struct $name:ident(pub $t0:ty);) => {
+        impl $crate::std_fmt_LowerExp for $name {
+            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
+                $crate::std_fmt_LowerExp::fmt(&self.0, fmt)
+            }
+        }
+    };
+    (() $vis:vis struct $name:ident($t0:ty);) => {
         impl $crate::std_fmt_LowerExp for $name {
             fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
                 $crate::std_fmt_LowerExp::fmt(&self.0, fmt)
@@ -966,7 +995,14 @@ macro_rules! NewtypeLowerExp {
 
 #[macro_export]
 macro_rules! NewtypeLowerHex {
-    (() $vis:vis struct $name:ident $_field:tt;) => {
+    (() $vis:vis struct $name:ident(pub $t0:ty);) => {
+        impl $crate::std_fmt_LowerHex for $name {
+            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
+                $crate::std_fmt_LowerHex::fmt(&self.0, fmt)
+            }
+        }
+    };
+    (() $vis:vis struct $name:ident($t0:ty);) => {
         impl $crate::std_fmt_LowerHex for $name {
             fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
                 $crate::std_fmt_LowerHex::fmt(&self.0, fmt)
@@ -977,7 +1013,14 @@ macro_rules! NewtypeLowerHex {
 
 #[macro_export]
 macro_rules! NewtypeOctal {
-    (() $vis:vis struct $name:ident $_field:tt;) => {
+    (() $vis:vis struct $name:ident(pub $t0:ty);) => {
+        impl $crate::std_fmt_Octal for $name {
+            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
+                $crate::std_fmt_Octal::fmt(&self.0, fmt)
+            }
+        }
+    };
+    (() $vis:vis struct $name:ident($t0:ty);) => {
         impl $crate::std_fmt_Octal for $name {
             fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
                 $crate::std_fmt_Octal::fmt(&self.0, fmt)
@@ -988,7 +1031,14 @@ macro_rules! NewtypeOctal {
 
 #[macro_export]
 macro_rules! NewtypePointer {
-    (() $vis:vis struct $name:ident $_field:tt;) => {
+    (() $vis:vis struct $name:ident(pub $t0:ty);) => {
+        impl $crate::std_fmt_Pointer for $name {
+            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
+                $crate::std_fmt_Pointer::fmt(&self.0, fmt)
+            }
+        }
+    };
+    (() $vis:vis struct $name:ident($t0:ty);) => {
         impl $crate::std_fmt_Pointer for $name {
             fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
                 $crate::std_fmt_Pointer::fmt(&self.0, fmt)
@@ -999,7 +1049,14 @@ macro_rules! NewtypePointer {
 
 #[macro_export]
 macro_rules! NewtypeUpperExp {
-    (() $vis:vis struct $name:ident $_field:tt;) => {
+    (() $vis:vis struct $name:ident(pub $t0:ty);) => {
+        impl $crate::std_fmt_UpperExp for $name {
+            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
+                $crate::std_fmt_UpperExp::fmt(&self.0, fmt)
+            }
+        }
+    };
+    (() $vis:vis struct $name:ident($t0:ty);) => {
         impl $crate::std_fmt_UpperExp for $name {
             fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
                 $crate::std_fmt_UpperExp::fmt(&self.0, fmt)
@@ -1010,7 +1067,14 @@ macro_rules! NewtypeUpperExp {
 
 #[macro_export]
 macro_rules! NewtypeUpperHex {
-    (() $vis:vis struct $name:ident $_field:tt;) => {
+    (() $vis:vis struct $name:ident(pub $t0:ty);) => {
+        impl $crate::std_fmt_UpperHex for $name {
+            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
+                $crate::std_fmt_UpperHex::fmt(&self.0, fmt)
+            }
+        }
+    };
+    (() $vis:vis struct $name:ident($t0:ty);) => {
         impl $crate::std_fmt_UpperHex for $name {
             fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
                 $crate::std_fmt_UpperHex::fmt(&self.0, fmt)
