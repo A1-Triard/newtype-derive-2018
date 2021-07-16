@@ -261,12 +261,55 @@ macro_rules! wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple_ref,
-        item: $vis:vis struct $name:ident($(pub)? $t:ty);
+        item: $vis:vis struct $name:ident $($tail:tt)+
+    ) => {
+        $crate::generics_parse! {
+            $crate::wrap_bin_op {
+                generics_parse_done
+                [
+                    trait: ($($tr)*)::$meth,
+                    kind: simple_ref 'newtype_derive,
+                    item: $vis struct $name
+                ]
+            }
+            $($tail)+
+        }
+    };
+    (
+        generics_parse_done
+        [
+            trait: ($($tr:tt)*)::$meth:ident,
+            kind: simple_ref $a:lifetime,
+            item: $vis:vis struct $name:ident
+        ]
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
+    ) => {
+        $crate::generics_concat! {
+            $crate::wrap_bin_op {
+                generics_concat_done
+                [
+                    trait: ($($tr)*)::$meth,
+                    kind: simple_ref $a,
+                    item: $vis struct $name ($t)
+                ]
+            }
+            [$($g:tt)*] [$($r:tt)*] [$($w:tt)*],
+            [ < $a > ] [] []
+        }
+    };
+    (
+        generics_concat_done
+        [
+            trait: ($($tr:tt)*)::$meth:ident,
+            kind: simple_ref $a:lifetime,
+            item: $vis:vis struct $name:ident ($t:ty)
+        ]
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
     ) => {
         $crate::as_item! {
-            impl<'a> $($tr)*<&'a $name> for &'a $name {
-                type Output = $name;
-                fn $meth(self, rhs: Self) -> $name {
+            impl $($g)* $($tr)*<& $a $name $($r)*> for & $a $name $($r)* $($w)* {
+                type Output = $name $($r)*;
+                fn $meth(self, rhs: Self) -> $name $($r)* {
                     $name(<$t as $($tr)*<$t>>::$meth(self.0, rhs.0))
                 }
             }
