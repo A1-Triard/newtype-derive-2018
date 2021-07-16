@@ -377,10 +377,31 @@ macro_rules! wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: rhs_rewrap($rhs:ty),
-        item: $vis:vis struct $name:ident($(pub)? $t:ty);
+        item: $vis:vis struct $name:ident $($tail:tt)+
+    ) => {
+        $crate::generics_parse! {
+            $crate::wrap_bin_op {
+                generics_parse_done
+                [
+                    trait: ($($tr)*)::$meth,
+                    kind: rhs_rewrap($rhs),
+                    item: $vis struct $name
+                ]
+            }
+            $($tail)+
+        }
+    };
+    (
+        generics_parse_done
+        [
+            trait: ($($tr:tt)*)::$meth:ident,
+            kind: rhs_rewrap($rhs:ty),
+            item: $vis:vis struct $name:ident
+        ]
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
     ) => {
         $crate::as_item! {
-            impl $($tr)*<$rhs> for $name {
+            impl $($g)* $($tr)*<$rhs> for $name $($r)* $($w)* {
                 type Output = Self;
                 fn $meth(self, rhs: $rhs) -> Self {
                     $name(<$t as $($tr)*<$rhs>>::$meth(self.0, rhs))
