@@ -227,7 +227,7 @@ macro_rules! wrap_bin_op {
             impl $($tr)*<$name> for $name {
                 type Output = $name;
                 fn $meth(self, rhs: Self) -> $name {
-                    $name((self.0).$meth(rhs.0))
+                    $name(<$t as $($tr)*<$t>>::$meth(self.0, rhs.0))
                 }
             }
         }
@@ -242,7 +242,7 @@ macro_rules! wrap_bin_op {
             impl<'a> $($tr)*<&'a $name> for &'a $name {
                 type Output = $name;
                 fn $meth(self, rhs: Self) -> $name {
-                    $name((self.0).$meth(rhs.0))
+                    $name(<$t as $($tr)*<$t>>::$meth(self.0, rhs.0))
                 }
             }
         }
@@ -257,7 +257,7 @@ macro_rules! wrap_bin_op {
             impl<'a> $($tr)*<&'a $name> for $name {
                 type Output = $name;
                 fn $meth(self, rhs: &'a $name) -> $name {
-                    $name((self.0).$meth(&rhs.0))
+                    $name(<$t as $($tr)*<&$t>>::$meth(self.0, &rhs.0))
                 }
             }
         }
@@ -272,7 +272,7 @@ macro_rules! wrap_bin_op {
             impl $($tr)*<$rhs> for $name {
                 type Output = $name;
                 fn $meth(self, rhs: $rhs) -> $name {
-                    $name((self.0).$meth(rhs))
+                    $name(<$t as $($tr)*<$rhs>>::$meth(self.0, rhs))
                 }
             }
         }
@@ -287,7 +287,7 @@ macro_rules! wrap_bin_op {
             impl<'a> $($tr)*<$name> for &'a $name {
                 type Output = $name;
                 fn $meth(self, rhs: $name) -> $name {
-                    $name((self.0).$meth(rhs.0))
+                    $name(<$t as $($tr)*<$t>>::$meth(self.0, rhs.0))
                 }
             }
         }
@@ -302,7 +302,7 @@ macro_rules! wrap_bin_op {
             impl<'a> $($tr)*<$rhs> for &'a $name {
                 type Output = $name;
                 fn $meth(self, rhs: $rhs) -> $name {
-                    $name((self.0).$meth(rhs))
+                    $name(<$t as $($tr)*<$rhs>>::$meth(self.0, rhs))
                 }
             }
         }
@@ -321,7 +321,7 @@ macro_rules! wrap_un_op {
             impl $($tr)* for $name {
                 type Output = $name;
                 fn $meth(self) -> $name {
-                    $name((self.0).$meth())
+                    $name(<$t as $($tr)*>::$meth(self.0))
                 }
             }
         }
@@ -336,7 +336,7 @@ macro_rules! wrap_un_op {
             impl<'a> $($tr)* for &'a $name {
                 type Output = $name;
                 fn $meth(self) -> $name {
-                    $name((self.0).$meth())
+                    $name(<$t as $($tr)*>::$meth(self.0))
                 }
             }
         }
