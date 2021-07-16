@@ -208,6 +208,10 @@ pub use core::ops::Shl as std_ops_Shl;
 pub use core::ops::Shr as std_ops_Shr;
 #[doc(hidden)]
 pub use core::ops::Sub as std_ops_Sub;
+#[doc(hidden)]
+pub use generics::concat as generics_concat;
+#[doc(hidden)]
+pub use generics::parse as generics_parse;
 
 #[doc(hidden)]
 #[macro_export]
@@ -221,10 +225,31 @@ macro_rules! wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple,
-        item: $vis:vis struct $name:ident($(pub)? $t:ty);
+        item: $vis:vis struct $name:ident $($tail:tt)+
+    ) => {
+        $crate::generics_parse! {
+            $crate::wrap_bin_op {
+                generics_parse_done
+                [
+                    trait: ($($tr)*)::$meth,
+                    kind: simple,
+                    item: $vis struct $name
+                ]
+            }
+            $($tail)+
+        }
+    };
+    (
+        generics_parse_done
+        [
+            trait: ($($tr:tt)*)::$meth:ident,
+            kind: simple,
+            item: $vis:vis struct $name:ident
+        ]
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
     ) => {
         $crate::as_item! {
-            impl $($tr)*<$name> for $name {
+            impl $($g)* $($tr)*<$name $($r)*> for $name $($r)* $($w)* {
                 type Output = Self;
                 fn $meth(self, rhs: Self) -> Self {
                     $name(<$t as $($tr)*<$t>>::$meth(self.0, rhs.0))
