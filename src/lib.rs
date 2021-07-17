@@ -8,8 +8,8 @@
 // or distributed except according to those terms.
 
 //! This crate provides several macros for deriving implementations of various traits for "newtype"
-//! wrappers (*i.e.* tuple structs with a single element).
-//! That is, given a tuple struct with exactly one field (*e.g.* `struct Buckets(i32)`),
+//! wrappers (i.e. tuple structs with a single element).
+//! That is, given a tuple struct with exactly one field (e.g. `struct Buckets(i32)`),
 //! these macros will derive "obvious" implementations of traits such as
 //! `Add`, `Neg`, `Index`, `Deref`, etc.
 //!
@@ -29,7 +29,7 @@
 //!     #[derive(NewtypeAdd!, NewtypeMul!(i32))]
 //!     pub struct Happy(pub i32);
 //! }
-//! #
+//!
 //! # fn main() {
 //! // Let's add some happy little ints.
 //! let a = Happy(6);
@@ -48,14 +48,12 @@
 //!
 //! macro_attr! {
 //!     #[derive(NewtypeDeref!, NewtypeDerefMut!)]
-//!     #[derive(NewtypeIndex!(usize), NewtypeIndexMut!(usize))]
 //!     pub struct I32Array(Vec<i32>);
 //! }
 //!
 //! # fn main() {
 //! let mut arr = I32Array(vec![1, 2, 3]);
-//! arr[2] = 5;
-//! assert_eq!(&*arr, &[1, 2, 5]);
+//! assert_eq!(&*arr, &[1, 2, 3]);
 //! # }
 //! ```
 //!
@@ -63,10 +61,12 @@
 //!
 //! This crate provides macros to derive implementations of the following traits for newtype structs:
 //!
-//! - Binary Arithmetic Operators: Add, BitAnd, BitOr, BitXor, Div, Mul, Rem, Sub, Shl, Shr, plus the corresponding *Assign traits.
-//! - Unary Arithmetic Operators: Neg, Not.
-//! - Other Operators: Deref, DerefMut, Index, IndexMut.
-//! - Formatting: Binary, Debug, Display, LowerExp, LowerHex, Octal, Pointer, UpperExp, UpperHex.
+//! - binary arithmetic operators: `Add`, `BitAnd`, `BitOr`, `BitXor`, `Div`, `Mul`, `Rem`,
+//!   `Sub`, `Shl`, `Shr`, plus the corresponding `*Assign` traits.
+//! - unary arithmetic operators: `Neg`, `Not`.
+//! - other operators: `Deref`, `DerefMut`, `Index`, `IndexMut`.
+//! - formatting: `Binary`, `Debug`, `Display`, `LowerExp`, `LowerHex`, `Octal`,
+//!   `Pointer`, `UpperExp`, `UpperHex`.
 //!
 //! All of these macros are named `Newtype$Trait`.
 //!
@@ -74,7 +74,8 @@
 //!
 //! ## Binary Arithmetic Operators
 //!
-//! Each of the binary arithmetic operators accept several deriving forms.  To use `Add` on a struct `T` as an example:
+//! Each of the binary arithmetic operators accept several deriving forms.
+//! To use `Add` on a struct `T` as an example:
 //!
 //! - `NewtypeAdd`: `impl Add<T, Output=T> for T`
 //! - `NewtypeAdd(&self)`: `impl<'a> Add<&'a T, Output=T> for &'a T`
@@ -82,40 +83,48 @@
 //! - `NewtypeAdd(&self, U)`: `impl<'a> Add<U, Output=T> for &'a T`
 //! - `NewtypeAdd(*)`: All four combinations of `T` and `&T`
 //!
-//! The `*Assign` variants accept zero or one argument only.  For example:
+//! The `*Assign` variants accept zero or one argument only. For example:
 //!
 //! - `NewtypeAddAssign`: `impl AddAssign<T> for T`
 //! - `NewtypeAddAssign(&Self)`: `impl<'a> Add<&'a T> for &'a T`
 //! - `NewtypeAddAssign(U)`: `impl Add<U> for T`
 //! - `NewtypeAddAssign(*)`: Implements for `T` and `&T`.
 //!
-//! In all cases, the implementation unwraps the newtype (where necessary), forwards to the wrapped value's implementation, then re-wraps the result in the newtype.
+//! In all cases, the implementation unwraps the newtype (where necessary),
+//! forwards to the wrapped value's implementation, then re-wraps the result in the newtype.
 //!
 //! ## Unary Arithmetic Operators
 //!
-//! Each of the binary arithmetic operators accept several deriving forms.  To use `Neg` on a struct `T` as an example:
+//! Each of the binary arithmetic operators accept several deriving forms.
+//! To use `Neg` on a struct `T` as an example:
 //!
 //! - `NewtypeNeg`: `impl Neg<Output=T> for T`
 //! - `NewtypeNeg(&self)`: `impl<'a> Neg<Output=T> for &'a T`
 //! - `NewtypeNeg(*)`: both of the above
 //!
-//! In all cases, the implementation unwraps the newtype, forwards to the wrapped value's implementation, then re-wraps the result in the newtype.
+//! In all cases, the implementation unwraps the newtype,
+//! forwards to the wrapped value's implementation, then re-wraps the result in the newtype.
 //!
 //! ## Other Operators
 //!
-//! `NewtypeDeref` and `NewtypeDerefMut` only support the argument-less form, and implements the corresponding trait such that the newtype structure derefs to a pointer to the wrapped value.
+//! `NewtypeDeref` and `NewtypeDerefMut` only support the argument-less form.
+//! The call is forwarded to the wrapped value's implementation.
 //!
-//! `NewtypeIndex` and `NewtypeIndexMut` must be used as `NewtypeIndex(usize)`, where the argument is the type to use for indexing.  The call is forwarded to the wrapped value's implementation.
+//! `NewtypeIndex` and `NewtypeIndexMut` must be used as `NewtypeIndex(usize)`,
+//! where the argument is the type to use for indexing.
+//! The call is forwarded to the wrapped value's implementation.
 //!
 //! ## Formatting
 //!
-//! The deriving macros for the formatting traits in [`std::fmt`][] forward to the wrapped value's implementation.
-//!
-//! [`std::fmt`]: http://doc.rust-lang.org/std/fmt/index.html
+//! The deriving macros for the formatting traits in [`std::fmt`][core::fmt]
+//! forward to the wrapped value's implementation.
 //!
 //! ## Using Without `macro_attr!`
 //!
-//! Although designed to be used with `macro_attr!`, all of the macros in this crate can be used without it.  The following:
+//! Although designed to be used with
+//! [`macro_attr!`](https://docs.rs/macro-attr-2018/*/macro_attr_2018/macro.macro_attr.html),
+//! all of the macros in this crate can be used without it.
+//! The following:
 //!
 //! ```rust
 //! use macro_attr_2018::macro_attr;
@@ -126,10 +135,10 @@
 //!     pub struct Meters(pub f32);
 //! }
 //! #
-//! # fn main() {}
+//! # fn main() { }
 //! ```
 //!
-//! Can also be written as:
+//! can also be written as
 //!
 //! ```rust
 //! use newtype_derive_2018::*;
@@ -140,7 +149,7 @@
 //! NewtypeAdd! { () pub struct Meters(pub f32); }
 //! NewtypeAdd! { (f32) pub struct Meters(pub f32); }
 //! #
-//! # fn main() {}
+//! # fn main() { }
 //! ```
 
 #![no_std]
