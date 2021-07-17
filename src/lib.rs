@@ -268,7 +268,7 @@ macro_rules! wrap_bin_op {
                 generics_parse_done
                 [
                     trait: ($($tr)*)::$meth,
-                    kind: simple_ref 'newtype_derive,
+                    kind: simple_ref('newtype_derive),
                     item: $vis struct $name
                 ]
             }
@@ -279,7 +279,7 @@ macro_rules! wrap_bin_op {
         generics_parse_done
         [
             trait: ($($tr:tt)*)::$meth:ident,
-            kind: simple_ref $a:lifetime,
+            kind: simple_ref($a:lifetime),
             item: $vis:vis struct $name:ident
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
@@ -289,7 +289,7 @@ macro_rules! wrap_bin_op {
                 generics_concat_done
                 [
                     trait: ($($tr)*)::$meth,
-                    kind: simple_ref $a,
+                    kind: simple_ref($a),
                     item: $vis struct $name ($t)
                 ]
             }
@@ -301,7 +301,7 @@ macro_rules! wrap_bin_op {
         generics_concat_done
         [
             trait: ($($tr:tt)*)::$meth:ident,
-            kind: simple_ref $a:lifetime,
+            kind: simple_ref($a:lifetime),
             item: $vis:vis struct $name:ident ($t:ty)
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
