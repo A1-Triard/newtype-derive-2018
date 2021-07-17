@@ -980,115 +980,77 @@ macro_rules! NewtypeIndexMut_impl {
     };
 }
 
-/*
 #[doc(hidden)]
 #[macro_export]
 macro_rules! wrap_fmt {
-    (() $vis:vis struct $name:ident($(pub)? $t0:ty);) => {
-        impl $crate::std_fmt_Binary for $name {
+    ([$tr:path] [$name:ident] [($(pub)? $t0:ty);]) => {
+        impl $tr for $name {
             fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
-                $crate::std_fmt_Binary::fmt(&self.0, fmt)
+                <$t0 as $tr>::fmt(&self.0, fmt)
             }
         }
     };
 }
-*/
 
 #[macro_export]
 macro_rules! NewtypeBinary {
-    (() $vis:vis struct $name:ident($(pub)? $t0:ty);) => {
-        impl $crate::std_fmt_Binary for $name {
-            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
-                $crate::std_fmt_Binary::fmt(&self.0, fmt)
-            }
-        }
+    (() $vis:vis struct $name:ident $($tail:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_Binary] [$name] [$($tail)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeDebug {
-    (() $vis:vis struct $name:ident($(pub)? $t0:ty);) => {
-        impl $crate::std_fmt_Debug for $name {
-            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
-                $crate::std_fmt_Debug::fmt(&self.0, fmt)
-            }
-        }
+    (() $vis:vis struct $name:ident $($tail:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_Debug] [$name] [$($tail)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeDisplay {
-    (() $vis:vis struct $name:ident($(pub)? $t0:ty);) => {
-        impl $crate::std_fmt_Display for $name {
-            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
-                $crate::std_fmt_Display::fmt(&self.0, fmt)
-            }
-        }
+    (() $vis:vis struct $name:ident $($tail:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_Display] [$name] [$($tail)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeLowerExp {
-    (() $vis:vis struct $name:ident($(pub)? $t0:ty);) => {
-        impl $crate::std_fmt_LowerExp for $name {
-            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
-                $crate::std_fmt_LowerExp::fmt(&self.0, fmt)
-            }
-        }
+    (() $vis:vis struct $name:ident $($tail:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_LowerExp] [$name] [$($tail)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeLowerHex {
-    (() $vis:vis struct $name:ident($(pub)? $t0:ty);) => {
-        impl $crate::std_fmt_LowerHex for $name {
-            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
-                $crate::std_fmt_LowerHex::fmt(&self.0, fmt)
-            }
-        }
+    (() $vis:vis struct $name:ident $($tail:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_LowerHex] [$name] [$($tail)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeOctal {
-    (() $vis:vis struct $name:ident($(pub)? $t0:ty);) => {
-        impl $crate::std_fmt_Octal for $name {
-            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
-                $crate::std_fmt_Octal::fmt(&self.0, fmt)
-            }
-        }
+    (() $vis:vis struct $name:ident $($tail:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_Octal] [$name] [$($tail)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypePointer {
-    (() $vis:vis struct $name:ident($(pub)? $t0:ty);) => {
-        impl $crate::std_fmt_Pointer for $name {
-            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
-                $crate::std_fmt_Pointer::fmt(&self.0, fmt)
-            }
-        }
+    (() $vis:vis struct $name:ident $($tail:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_Pointer] [$name] [$($tail)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeUpperExp {
-    (() $vis:vis struct $name:ident($(pub)? $t0:ty);) => {
-        impl $crate::std_fmt_UpperExp for $name {
-            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
-                $crate::std_fmt_UpperExp::fmt(&self.0, fmt)
-            }
-        }
+    (() $vis:vis struct $name:ident $($tail:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_UpperExp] [$name] [$($tail)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeUpperHex {
-    (() $vis:vis struct $name:ident($(pub)? $t0:ty);) => {
-        impl $crate::std_fmt_UpperHex for $name {
-            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
-                $crate::std_fmt_UpperHex::fmt(&self.0, fmt)
-            }
-        }
+    (() $vis:vis struct $name:ident $($tail:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_UpperHex] [$name] [$($tail)+] }
     };
 }
