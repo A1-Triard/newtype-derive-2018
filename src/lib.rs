@@ -983,10 +983,23 @@ macro_rules! NewtypeIndexMut_impl {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! wrap_fmt {
-    ([$tr:path] [$name:ident] [($(pub)? $t0:ty);]) => {
-        impl $tr for $name {
-            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
-                <$t0 as $tr>::fmt(&self.0, fmt)
+    ([$tr:path] [$name:ident] [$($tail:tt)+]) => {
+        $crate::generics_parse! {
+            $crate::wrap_fmt {
+                generics_parse_done
+                [$tr] [$name]
+            }
+            $($tail)+
+        }
+    };
+    (
+        generics_parse_done
+        [$tr:path] [$name:ident]
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t0:ty);
+    ) => {
+        impl $($g)* $tr for $name $($r)* $($w)* {
+            fn fmt(&self, f: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
+                <$t0 as $tr>::fmt(&self.0, f)
             }
         }
     };
