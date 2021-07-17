@@ -7,9 +7,15 @@
 // files in the project carrying such notice may not be copied, modified,
 // or distributed except according to those terms.
 
-//! This crate provides several macros for deriving implementations of various traits for "newtype" wrappers (*i.e.* tuple structs with a single element).  That is, given a tuple struct with exactly one field (*e.g.* `struct Buckets(i32)`), these macros will derive "obvious" implementations of traits such as `Add`, `Neg`, `Index`, `Deref`, `From`, etc.
+//! This crate provides several macros for deriving implementations of various traits for "newtype"
+//! wrappers (*i.e.* tuple structs with a single element).
+//! That is, given a tuple struct with exactly one field (*e.g.* `struct Buckets(i32)`),
+//! these macros will derive "obvious" implementations of traits such as
+//! `Add`, `Neg`, `Index`, `Deref`, etc.
 //!
-//! All of these macros are designed to be used with the [`macro-attr`](https://crates.io/crates/macro-attr) crate, though they can be used independent of it.
+//! All of these macros are designed to be used with the
+//! [`macro-attr-2018`](https://crates.io/crates/macro-attr-2018) crate,
+//! though they can be used independent of it.
 //!
 //! # Example
 //!
@@ -20,40 +26,36 @@
 //! use newtype_derive_2018::*;
 //!
 //! macro_attr! {
-//!     #[derive(NewtypeFrom!, NewtypeAdd!, NewtypeMul!(i32))]
-//!     pub struct Happy(i32);
+//!     #[derive(NewtypeAdd!, NewtypeMul!(i32))]
+//!     pub struct Happy(pub i32);
 //! }
 //! #
 //! # fn main() {
 //! // Let's add some happy little ints.
-//! let a = Happy::from(6);
-//! let b = Happy::from(7);
+//! let a = Happy(6);
+//! let b = Happy(7);
 //! let c = (a + b) * 3;
-//! let d: i32 = c.into();
+//! let d: i32 = c.0;
 //! assert_eq!(d, 39);
 //! # }
 //! ```
 //!
-//! Create a "deref-transparent" wrapper around a type:
+//! Create a "deref-transparent" wrapper around a smart pointer:
 //!
 //! ```rust
 //! use macro_attr_2018::macro_attr;
 //! use newtype_derive_2018::*;
 //!
 //! macro_attr! {
-//!     #[derive(NewtypeFrom!,
-//!         NewtypeDeref!, NewtypeDerefMut!,
-//!         NewtypeIndex!(usize), NewtypeIndexMut!(usize)
-//!         )]
+//!     #[derive(NewtypeDeref!, NewtypeDerefMut!)]
+//!     #[derive(NewtypeIndex!(usize), NewtypeIndexMut!(usize))]
 //!     pub struct I32Array(Vec<i32>);
 //! }
 //!
 //! # fn main() {
-//! let mut arr = I32Array::from(vec![1, 2, 3]);
-//! arr.push(4);
+//! let mut arr = I32Array(vec![1, 2, 3]);
 //! arr[2] = 5;
-//! assert_eq!(&**arr, &[1, 2, 5, 4]);
-//! assert_eq!(arr.len(), 4);
+//! assert_eq!(&*arr, &[1, 2, 5]);
 //! # }
 //! ```
 //!
@@ -65,12 +67,10 @@
 //! - Unary Arithmetic Operators: Neg, Not.
 //! - Other Operators: Deref, DerefMut, Index, IndexMut.
 //! - Formatting: Binary, Debug, Display, LowerExp, LowerHex, Octal, Pointer, UpperExp, UpperHex.
-//! - Miscellaneous: From.
-//! - Unstable: One, Product, Sum, Zero (requires the `std-unstable` feature).
 //!
 //! All of these macros are named `Newtype$Trait`.
 //!
-//! None of these macros currently support generic newtype structs.
+//! All these macros support generic newtype structs.
 //!
 //! ## Binary Arithmetic Operators
 //!
@@ -113,12 +113,6 @@
 //!
 //! [`std::fmt`]: http://doc.rust-lang.org/std/fmt/index.html
 //!
-//! ## Miscellaneous
-//!
-//! `NewtypeFrom` implements `std::convert::From` twice: once for converting from the wrapped type to the newtype, and once for converting from the newtype to the wrapped type.
-//!
-//! `NewtypeProduct` and `NewtypeSum` optionally support specifying `&Self` as an argument to generate an implementation that accepts an iterator of borrowed pointers (*e.g.* `NewtypeSum(&Self)`).
-//!
 //! ## Using Without `macro_attr!`
 //!
 //! Although designed to be used with `macro_attr!`, all of the macros in this crate can be used without it.  The following:
@@ -128,8 +122,8 @@
 //! use newtype_derive_2018::*;
 //!
 //! macro_attr! {
-//!     #[derive(Copy, Clone, Debug, NewtypeFrom!, NewtypeAdd!, NewtypeAdd!(f32))]
-//!     pub struct Meters(f32);
+//!     #[derive(Copy, Clone, Debug, NewtypeAdd!, NewtypeAdd!(f32))]
+//!     pub struct Meters(pub f32);
 //! }
 //! #
 //! # fn main() {}
@@ -141,19 +135,16 @@
 //! use newtype_derive_2018::*;
 //!
 //! #[derive(Copy, Clone, Debug)]
-//! pub struct Meters(f32);
+//! pub struct Meters(pub f32);
 //!
-//! NewtypeFrom! { () pub struct Meters(f32); }
-//! NewtypeAdd! { () pub struct Meters(f32); }
-//! NewtypeAdd! { (f32) pub struct Meters(f32); }
+//! NewtypeAdd! { () pub struct Meters(pub f32); }
+//! NewtypeAdd! { (f32) pub struct Meters(pub f32); }
 //! #
 //! # fn main() {}
 //! ```
 
 #![no_std]
 
-#[doc(hidden)]
-pub use core::convert::From as std_convert_From;
 #[doc(hidden)]
 pub use core::fmt::Binary as std_fmt_Binary;
 #[doc(hidden)]
