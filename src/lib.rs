@@ -533,10 +533,31 @@ macro_rules! wrap_un_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple,
-        item: $vis:vis struct $name:ident($(pub)? $t:ty);
+        item: $vis:vis struct $name:ident $($tail:tt)+
+    ) => {
+        $crate::generics_parse! {
+            $crate::wrap_un_op {
+                generics_parse_done
+                [
+                    trait: ($($tr)*)::$meth,
+                    kind: simple,
+                    item: $vis struct $name
+                ]
+            }
+            $($tail)+
+        }
+    };
+    (
+        generics_parse_done
+        [
+            trait: ($($tr:tt)*)::$meth:ident,
+            kind: simple,
+            item: $vis:vis struct $name:ident
+        ]
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
     ) => {
         $crate::as_item! {
-            impl $($tr)* for $name {
+            impl $($g)* $($tr)* for $name $($r)* $($w)* {
                 type Output = Self;
                 fn $meth(self) -> Self {
                     $name(<$t as $($tr)*>::$meth(self.0))
