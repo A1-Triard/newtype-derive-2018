@@ -962,8 +962,26 @@ macro_rules! NewtypeIndex_impl {
 
 #[macro_export]
 macro_rules! NewtypeIndexMut {
-    (($Index:ty) $vis:vis struct $name:ident($(pub)? $t0:ty);) => {
-        impl $crate::std_ops_IndexMut<$Index> for $name {
+    (($Index:ty) $vis:vis struct $name:ident $($tail:tt)+) => {
+        $crate::generics_parse! {
+            $crate::NewtypeIndexMut_impl {
+                generics_parse_done
+                [($Index) $vis struct $name ]
+            }
+            $($tail)+
+        }
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! NewtypeIndexMut_impl {
+    (
+        generics_parse_done
+        [($Index:ty) $vis:vis struct $name:ident ]
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t0:ty);
+    ) => {
+        impl $($g)* $crate::std_ops_IndexMut<$Index> for $name $($r)* $($w)* {
             fn index_mut(&mut self, index: $Index) -> &mut Self::Output {
                 <$t0 as $crate::std_ops_IndexMut<$Index>>::index_mut(&mut self.0, index)
             }
