@@ -915,6 +915,7 @@ macro_rules! NewtypeDerefMut {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! NewtypeDerefMut_impl {
     (
@@ -930,8 +931,26 @@ macro_rules! NewtypeDerefMut_impl {
 
 #[macro_export]
 macro_rules! NewtypeIndex {
-    (($Index:ty) $vis:vis struct $name:ident($(pub)? $t0:ty);) => {
-        impl $crate::std_ops_Index<$Index> for $name {
+    (($Index:ty) $vis:vis struct $name:ident $($tail:tt)+) => {
+        $crate::generics_parse! {
+            $crate::NewtypeIndex_impl {
+                generics_parse_done
+                [($Index) $vis struct $name ]
+            }
+            $($tail)+
+        }
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! NewtypeIndex_impl {
+    (
+        generics_parse_done
+        [($Index:ty) $vis:vis struct $name:ident ]
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t0:ty);
+    ) => {
+        impl $($g)* $crate::std_ops_Index<$Index> for $name $($r)* $($w)* {
             type Output = <$t0 as $crate::std_ops_Index<$Index>>::Output;
 
             fn index(&self, index: $Index) -> &Self::Output {
