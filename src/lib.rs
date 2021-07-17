@@ -216,7 +216,7 @@ macro_rules! wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple,
-        item: $vis:vis struct $name:ident $($tail:tt)+
+        item: $vis:vis struct $name:ident $($body:tt)+
     ) => {
         $crate::generics_parse! {
             $crate::wrap_bin_op {
@@ -227,7 +227,7 @@ macro_rules! wrap_bin_op {
                     item: $vis struct $name
                 ]
             }
-            $($tail)+
+            $($body)+
         }
     };
     (
@@ -252,7 +252,7 @@ macro_rules! wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple_ref,
-        item: $vis:vis struct $name:ident $($tail:tt)+
+        item: $vis:vis struct $name:ident $($body:tt)+
     ) => {
         $crate::generics_parse! {
             $crate::wrap_bin_op {
@@ -263,7 +263,7 @@ macro_rules! wrap_bin_op {
                     item: $vis struct $name
                 ]
             }
-            $($tail)+
+            $($body)+
         }
     };
     (
@@ -310,7 +310,7 @@ macro_rules! wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: rhs_rewrap(&Self),
-        item: $vis:vis struct $name:ident $($tail:tt)+
+        item: $vis:vis struct $name:ident $($body:tt)+
     ) => {
         $crate::generics_parse! {
             $crate::wrap_bin_op {
@@ -321,7 +321,7 @@ macro_rules! wrap_bin_op {
                     item: $vis struct $name
                 ]
             }
-            $($tail)+
+            $($body)+
         }
     };
     (
@@ -368,7 +368,7 @@ macro_rules! wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: rhs_rewrap($rhs:ty),
-        item: $vis:vis struct $name:ident $($tail:tt)+
+        item: $vis:vis struct $name:ident $($body:tt)+
     ) => {
         $crate::generics_parse! {
             $crate::wrap_bin_op {
@@ -379,7 +379,7 @@ macro_rules! wrap_bin_op {
                     item: $vis struct $name
                 ]
             }
-            $($tail)+
+            $($body)+
         }
     };
     (
@@ -404,7 +404,7 @@ macro_rules! wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: ref_rhs_rewrap(Self),
-        item: $vis:vis struct $name:ident $($tail:tt)+
+        item: $vis:vis struct $name:ident $($body:tt)+
     ) => {
         $crate::generics_parse! {
             $crate::wrap_bin_op {
@@ -415,7 +415,7 @@ macro_rules! wrap_bin_op {
                     item: $vis struct $name
                 ]
             }
-            $($tail)+
+            $($body)+
         }
     };
     (
@@ -462,7 +462,7 @@ macro_rules! wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: ref_rhs_rewrap($rhs:ty),
-        item: $vis:vis struct $name:ident $($tail:tt)+
+        item: $vis:vis struct $name:ident $($body:tt)+
     ) => {
         $crate::generics_parse! {
             $crate::wrap_bin_op {
@@ -473,7 +473,7 @@ macro_rules! wrap_bin_op {
                     item: $vis struct $name
                 ]
             }
-            $($tail)+
+            $($body)+
         }
     };
     (
@@ -524,7 +524,7 @@ macro_rules! wrap_un_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple,
-        item: $vis:vis struct $name:ident $($tail:tt)+
+        item: $vis:vis struct $name:ident $($body:tt)+
     ) => {
         $crate::generics_parse! {
             $crate::wrap_un_op {
@@ -535,7 +535,7 @@ macro_rules! wrap_un_op {
                     item: $vis struct $name
                 ]
             }
-            $($tail)+
+            $($body)+
         }
     };
     (
@@ -560,7 +560,7 @@ macro_rules! wrap_un_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple_ref,
-        item: $vis:vis struct $name:ident $($tail:tt)+
+        item: $vis:vis struct $name:ident $($body:tt)+
     ) => {
         $crate::generics_parse! {
             $crate::wrap_un_op {
@@ -571,7 +571,7 @@ macro_rules! wrap_un_op {
                     item: $vis struct $name
                 ]
             }
-            $($tail)+
+            $($body)+
         }
     };
     (
@@ -866,13 +866,13 @@ macro_rules! NewtypeNot {
 
 #[macro_export]
 macro_rules! NewtypeDeref {
-    (() $vis:vis struct $name:ident $($tail:tt)+) => {
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
         $crate::generics_parse! {
             $crate::NewtypeDeref_impl {
                 generics_parse_done
                 [ $vis struct $name ]
             }
-            $($tail)+
+            $($body)+
         }
     };
 }
@@ -895,13 +895,13 @@ macro_rules! NewtypeDeref_impl {
 
 #[macro_export]
 macro_rules! NewtypeDerefMut {
-    (() $vis:vis struct $name:ident $($tail:tt)+) => {
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
         $crate::generics_parse! {
             $crate::NewtypeDerefMut_impl {
                 generics_parse_done
                 [ $vis struct $name ]
             }
-            $($tail)+
+            $($body)+
         }
     };
 }
@@ -922,13 +922,13 @@ macro_rules! NewtypeDerefMut_impl {
 
 #[macro_export]
 macro_rules! NewtypeIndex {
-    (($Index:ty) $vis:vis struct $name:ident $($tail:tt)+) => {
+    (($Index:ty) $vis:vis struct $name:ident $($body:tt)+) => {
         $crate::generics_parse! {
             $crate::NewtypeIndex_impl {
                 generics_parse_done
                 [($Index) $vis struct $name ]
             }
-            $($tail)+
+            $($body)+
         }
     };
 }
@@ -953,13 +953,13 @@ macro_rules! NewtypeIndex_impl {
 
 #[macro_export]
 macro_rules! NewtypeIndexMut {
-    (($Index:ty) $vis:vis struct $name:ident $($tail:tt)+) => {
+    (($Index:ty) $vis:vis struct $name:ident $($body:tt)+) => {
         $crate::generics_parse! {
             $crate::NewtypeIndexMut_impl {
                 generics_parse_done
                 [($Index) $vis struct $name ]
             }
-            $($tail)+
+            $($body)+
         }
     };
 }
@@ -983,13 +983,13 @@ macro_rules! NewtypeIndexMut_impl {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! wrap_fmt {
-    ([$tr:path] [$name:ident] [$($tail:tt)+]) => {
+    ([$tr:path] [$name:ident] [$($body:tt)+]) => {
         $crate::generics_parse! {
             $crate::wrap_fmt {
                 generics_parse_done
                 [$tr] [$name]
             }
-            $($tail)+
+            $($body)+
         }
     };
     (
@@ -1007,63 +1007,63 @@ macro_rules! wrap_fmt {
 
 #[macro_export]
 macro_rules! NewtypeBinary {
-    (() $vis:vis struct $name:ident $($tail:tt)+) => {
-        $crate::wrap_fmt! { [$crate::std_fmt_Binary] [$name] [$($tail)+] }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_Binary] [$name] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeDebug {
-    (() $vis:vis struct $name:ident $($tail:tt)+) => {
-        $crate::wrap_fmt! { [$crate::std_fmt_Debug] [$name] [$($tail)+] }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_Debug] [$name] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeDisplay {
-    (() $vis:vis struct $name:ident $($tail:tt)+) => {
-        $crate::wrap_fmt! { [$crate::std_fmt_Display] [$name] [$($tail)+] }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_Display] [$name] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeLowerExp {
-    (() $vis:vis struct $name:ident $($tail:tt)+) => {
-        $crate::wrap_fmt! { [$crate::std_fmt_LowerExp] [$name] [$($tail)+] }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_LowerExp] [$name] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeLowerHex {
-    (() $vis:vis struct $name:ident $($tail:tt)+) => {
-        $crate::wrap_fmt! { [$crate::std_fmt_LowerHex] [$name] [$($tail)+] }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_LowerHex] [$name] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeOctal {
-    (() $vis:vis struct $name:ident $($tail:tt)+) => {
-        $crate::wrap_fmt! { [$crate::std_fmt_Octal] [$name] [$($tail)+] }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_Octal] [$name] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypePointer {
-    (() $vis:vis struct $name:ident $($tail:tt)+) => {
-        $crate::wrap_fmt! { [$crate::std_fmt_Pointer] [$name] [$($tail)+] }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_Pointer] [$name] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeUpperExp {
-    (() $vis:vis struct $name:ident $($tail:tt)+) => {
-        $crate::wrap_fmt! { [$crate::std_fmt_UpperExp] [$name] [$($tail)+] }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_UpperExp] [$name] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeUpperHex {
-    (() $vis:vis struct $name:ident $($tail:tt)+) => {
-        $crate::wrap_fmt! { [$crate::std_fmt_UpperHex] [$name] [$($tail)+] }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_UpperHex] [$name] [$($body)+] }
     };
 }
