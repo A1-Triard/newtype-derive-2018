@@ -413,12 +413,55 @@ macro_rules! wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: ref_rhs_rewrap(Self),
-        item: $vis:vis struct $name:ident($(pub)? $t:ty);
+        item: $vis:vis struct $name:ident $($tail:tt)+
+    ) => {
+        $crate::generics_parse! {
+            $crate::wrap_bin_op {
+                generics_parse_done
+                [
+                    trait: ($($tr)*)::$meth,
+                    kind: ref_rhs_rewrap('newtype_derive Self) ,
+                    item: $vis struct $name
+                ]
+            }
+            $($tail)+
+        }
+    };
+    (
+        generics_parse_done
+        [
+            trait: ($($tr:tt)*)::$meth:ident,
+            kind: ref_rhs_rewrap($a:lifetime Self),
+            item: $vis:vis struct $name:ident
+        ]
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
+    ) => {
+        $crate::generics_concat! {
+            $crate::wrap_bin_op {
+                generics_concat_done
+                [
+                    trait: ($($tr)*)::$meth,
+                    kind: ref_rhs_rewrap($a Self),
+                    item: $vis struct $name ($t)
+                ]
+            }
+            [$($g:tt)*] [$($r:tt)*] [$($w:tt)*],
+            [ < $a > ] [] []
+        }
+    };
+    (
+        generics_concat_done
+        [
+            trait: ($($tr:tt)*)::$meth:ident,
+            kind: ref_rhs_rewrap($a:lifetime Self),
+            item: $vis:vis struct $name:ident ($t:ty)
+        ]
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
     ) => {
         $crate::as_item! {
-            impl<'a> $($tr)*<$name> for &'a $name {
-                type Output = $name;
-                fn $meth(self, rhs: $name) -> $name {
+            impl $($g)* $($tr)*<$name $($r)*> for & $a $name $($r)* $($w)* {
+                type Output = $name $($r)*;
+                fn $meth(self, rhs: $name $($r)*) -> $name $($r)* {
                     $name(<$t as $($tr)*<$t>>::$meth(self.0, rhs.0))
                 }
             }
