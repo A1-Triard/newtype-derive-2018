@@ -875,8 +875,26 @@ macro_rules! NewtypeNot {
 
 #[macro_export]
 macro_rules! NewtypeDeref {
-    (() $vis:vis struct $name:ident($(pub)? $t0:ty);) => {
-        impl $crate::std_ops_Deref for $name {
+    (() $vis:vis struct $name:ident $($tail:tt)+) => {
+        $crate::generics_parse! {
+            $crate::NewtypeDeref_impl {
+                generics_parse_done
+                [ $vis struct $name ]
+            }
+            $($tail)+
+        }
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! NewtypeDeref_impl {
+    (
+        generics_parse_done
+        [ $vis:vis struct $name:ident ]
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t0:ty);
+    ) => {
+        impl $($g)* $crate::std_ops_Deref for $name $($r)* $($w)* {
             type Target = $t0;
 
             fn deref(&self) -> &Self::Target { &self.0 }
