@@ -27,46 +27,44 @@ macro_attr! {
 
         NewtypeNeg!, NewtypeNeg!(&self),
         NewtypeNot!, NewtypeNot!(&self),
-
-        NewtypeFrom!
         )]
     pub struct Dummy(i32);
 }
 
 #[test]
 fn test_arith() {
-    let a = Dummy::from(4);
-    let b = Dummy::from(7);
+    let a = Dummy(4);
+    let b = Dummy(7);
 
-    assert_eq!(a + b, Dummy::from(4 + 7));
-    assert_eq!(&a + &b, Dummy::from(4 + 7));
-    assert_eq!(a + 7, Dummy::from(4 + 7));
-    assert_eq!(&a + 7, Dummy::from(4 + 7));
-    assert_eq!(a & b, Dummy::from(4 & 7));
-    assert_eq!(&a & &b, Dummy::from(4 & 7));
-    assert_eq!(a | b, Dummy::from(4 | 7));
-    assert_eq!(&a | &b, Dummy::from(4 | 7));
-    assert_eq!(a ^ b, Dummy::from(4 ^ 7));
-    assert_eq!(&a ^ &b, Dummy::from(4 ^ 7));
-    assert_eq!(a / b, Dummy::from(4 / 7));
-    assert_eq!(&a / &b, Dummy::from(4 / 7));
-    assert_eq!(a * b, Dummy::from(4 * 7));
-    assert_eq!(&a * &b, Dummy::from(4 * 7));
-    assert_eq!(a % b, Dummy::from(4 % 7));
-    assert_eq!(&a % &b, Dummy::from(4 % 7));
-    assert_eq!(a - b, Dummy::from(4 - 7));
-    assert_eq!(&a - &b, Dummy::from(4 - 7));
+    assert_eq!(a + b, Dummy(4 + 7));
+    assert_eq!(&a + &b, Dummy(4 + 7));
+    assert_eq!(a + 7, Dummy(4 + 7));
+    assert_eq!(&a + 7, Dummy(4 + 7));
+    assert_eq!(a & b, Dummy(4 & 7));
+    assert_eq!(&a & &b, Dummy(4 & 7));
+    assert_eq!(a | b, Dummy(4 | 7));
+    assert_eq!(&a | &b, Dummy(4 | 7));
+    assert_eq!(a ^ b, Dummy(4 ^ 7));
+    assert_eq!(&a ^ &b, Dummy(4 ^ 7));
+    assert_eq!(a / b, Dummy(4 / 7));
+    assert_eq!(&a / &b, Dummy(4 / 7));
+    assert_eq!(a * b, Dummy(4 * 7));
+    assert_eq!(&a * &b, Dummy(4 * 7));
+    assert_eq!(a % b, Dummy(4 % 7));
+    assert_eq!(&a % &b, Dummy(4 % 7));
+    assert_eq!(a - b, Dummy(4 - 7));
+    assert_eq!(&a - &b, Dummy(4 - 7));
 
-    assert_eq!(a << b, Dummy::from(4 << 7));
-    assert_eq!(&a << &b, Dummy::from(4 << 7));
-    assert_eq!(a << 7, Dummy::from(4 << 7));
+    assert_eq!(a << b, Dummy(4 << 7));
+    assert_eq!(&a << &b, Dummy(4 << 7));
+    assert_eq!(a << 7, Dummy(4 << 7));
 
-    assert_eq!(a >> b, Dummy::from(4 >> 7));
-    assert_eq!(&a >> &b, Dummy::from(4 >> 7));
-    assert_eq!(a >> 7, Dummy::from(4 >> 7));
+    assert_eq!(a >> b, Dummy(4 >> 7));
+    assert_eq!(&a >> &b, Dummy(4 >> 7));
+    assert_eq!(a >> 7, Dummy(4 >> 7));
 
-    assert_eq!(-a, Dummy::from(-4));
-    assert_eq!(-&a, Dummy::from(-4));
-    assert_eq!(!a, Dummy::from(!4));
-    assert_eq!(!&a, Dummy::from(!4));
+    assert_eq!(-a, Dummy(-4));
+    assert_eq!(-&a, Dummy(-4));
+    assert_eq!(!a, Dummy(!4));
+    assert_eq!(!&a, Dummy(!4));
 }

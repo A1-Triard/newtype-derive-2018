@@ -12,7 +12,6 @@
 
 macro_attr! {
     #[derive(Clone, Eq, PartialEq, Debug,
-        NewtypeFrom!,
         NewtypeDeref!, NewtypeDerefMut!,
         NewtypeIndex!(usize), NewtypeIndexMut!(usize)
         )]

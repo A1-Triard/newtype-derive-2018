@@ -42,15 +42,12 @@ macro_attr! {
 
         NewtypeNeg!, NewtypeNeg!(&self),
         NewtypeNot!, NewtypeNot!(&self),
-
-        NewtypeFrom!
         )]
     pub struct Dummy1(pub i32);
 }
 
 macro_attr! {
     #[derive(Clone, Eq, PartialEq, Debug,
-        NewtypeFrom!,
         NewtypeDeref!, NewtypeDerefMut!,
         NewtypeIndex!(usize), NewtypeIndexMut!(usize)
         )]

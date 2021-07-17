@@ -953,20 +953,6 @@ macro_rules! NewtypeIndexMut {
 }
 
 #[macro_export]
-macro_rules! NewtypeFrom {
-    (() $vis:vis struct $name:ident($(pub)? $t0:ty);) => {
-        impl $crate::std_convert_From<$t0> for $name {
-            fn from(v: $t0) -> Self { $name(v) }
-        }
-
-        impl $crate::std_convert_From<$name> for $t0 {
-            fn from(v: $name) -> Self { v.0 }
-        }
-    };
-}
-
-
-#[macro_export]
 macro_rules! NewtypeBinary {
     (() $vis:vis struct $name:ident($(pub)? $t0:ty);) => {
         impl $crate::std_fmt_Binary for $name {
