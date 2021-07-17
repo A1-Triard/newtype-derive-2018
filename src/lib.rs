@@ -895,7 +895,7 @@ macro_rules! NewtypeDeref_impl {
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t0:ty);
     ) => {
         impl $($g)* $crate::std_ops_Deref for $name $($r)* $($w)* {
-            type Target = $t0;
+            type Target = <$t0 as $crate::std_ops_Deref>::Target;
 
             fn deref(&self) -> &Self::Target { &self.0 }
         }
