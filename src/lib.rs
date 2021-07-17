@@ -952,6 +952,20 @@ macro_rules! NewtypeIndexMut {
     };
 }
 
+/*
+#[doc(hidden)]
+#[macro_export]
+macro_rules! wrap_fmt {
+    (() $vis:vis struct $name:ident($(pub)? $t0:ty);) => {
+        impl $crate::std_fmt_Binary for $name {
+            fn fmt(&self, fmt: &mut $crate::std_fmt_Formatter) -> $crate::std_fmt_Result {
+                $crate::std_fmt_Binary::fmt(&self.0, fmt)
+            }
+        }
+    };
+}
+*/
+
 #[macro_export]
 macro_rules! NewtypeBinary {
     (() $vis:vis struct $name:ident($(pub)? $t0:ty);) => {
