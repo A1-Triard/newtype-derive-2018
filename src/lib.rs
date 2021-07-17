@@ -904,8 +904,25 @@ macro_rules! NewtypeDeref_impl {
 
 #[macro_export]
 macro_rules! NewtypeDerefMut {
-    (() $vis:vis struct $name:ident($(pub)? $t0:ty);) => {
-        impl $crate::std_ops_DerefMut for $name {
+    (() $vis:vis struct $name:ident $($tail:tt)+) => {
+        $crate::generics_parse! {
+            $crate::NewtypeDerefMut_impl {
+                generics_parse_done
+                [ $vis struct $name ]
+            }
+            $($tail)+
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! NewtypeDerefMut_impl {
+    (
+        generics_parse_done
+        [ $vis:vis struct $name:ident ]
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t0:ty);
+    ) => {
+        impl $($g)* $crate::std_ops_DerefMut for $name $($r)* $($w)* {
             fn deref_mut(&mut self) -> &mut Self::Target { &mut self.0 }
         }
     };
