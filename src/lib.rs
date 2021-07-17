@@ -225,7 +225,7 @@ macro_rules! wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple,
-        item: $vis:vis struct $name:ident $($body:tt)+
+        item: [$name:ident] [$($body:tt)+]
     ) => {
         $crate::generics_parse! {
             $crate::wrap_bin_op {
@@ -233,7 +233,7 @@ macro_rules! wrap_bin_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: simple,
-                    item: $vis struct $name
+                    item: [$name]
                 ]
             }
             $($body)+
@@ -244,7 +244,7 @@ macro_rules! wrap_bin_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: simple,
-            item: $vis:vis struct $name:ident
+            item: [$name:ident]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
     ) => {
@@ -261,7 +261,7 @@ macro_rules! wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple_ref,
-        item: $vis:vis struct $name:ident $($body:tt)+
+        item: [$name:ident] [$($body:tt)+]
     ) => {
         $crate::generics_parse! {
             $crate::wrap_bin_op {
@@ -269,7 +269,7 @@ macro_rules! wrap_bin_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: simple_ref('newtype_derive),
-                    item: $vis struct $name
+                    item: [$name]
                 ]
             }
             $($body)+
@@ -280,7 +280,7 @@ macro_rules! wrap_bin_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: simple_ref($a:lifetime),
-            item: $vis:vis struct $name:ident
+            item: [$name:ident]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
     ) => {
@@ -290,7 +290,7 @@ macro_rules! wrap_bin_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: simple_ref($a),
-                    item: $vis struct $name ($t)
+                    item: [$name] [$t]
                 ]
             }
             [$($g:tt)*] [$($r:tt)*] [$($w:tt)*],
@@ -302,7 +302,7 @@ macro_rules! wrap_bin_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: simple_ref($a:lifetime),
-            item: $vis:vis struct $name:ident ($t:ty)
+            item: [$name:ident] [$t:ty]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
     ) => {
@@ -319,7 +319,7 @@ macro_rules! wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: rhs_rewrap(&Self),
-        item: $vis:vis struct $name:ident $($body:tt)+
+        item: [$name:ident] [$($body:tt)+]
     ) => {
         $crate::generics_parse! {
             $crate::wrap_bin_op {
@@ -327,7 +327,7 @@ macro_rules! wrap_bin_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: rhs_rewrap(&'newtype_derive Self),
-                    item: $vis struct $name
+                    item: [$name]
                 ]
             }
             $($body)+
@@ -338,7 +338,7 @@ macro_rules! wrap_bin_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: rhs_rewrap(& $a:lifetime Self),
-            item: $vis:vis struct $name:ident
+            item: [$name:ident]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
     ) => {
@@ -348,7 +348,7 @@ macro_rules! wrap_bin_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: rhs_rewrap(& $a Self),
-                    item: $vis struct $name ($t)
+                    item: [$name] [$t]
                 ]
             }
             [$($g:tt)*] [$($r:tt)*] [$($w:tt)*],
@@ -360,7 +360,7 @@ macro_rules! wrap_bin_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: rhs_rewrap(& $a:lifetime Self),
-            item: $vis:vis struct $name:ident ($t:ty)
+            item: [$name:ident] [$t:ty]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
     ) => {
@@ -377,7 +377,7 @@ macro_rules! wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: rhs_rewrap($rhs:ty),
-        item: $vis:vis struct $name:ident $($body:tt)+
+        item: [$name:ident] [$($body:tt)+]
     ) => {
         $crate::generics_parse! {
             $crate::wrap_bin_op {
@@ -385,7 +385,7 @@ macro_rules! wrap_bin_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: rhs_rewrap($rhs),
-                    item: $vis struct $name
+                    item: [$name]
                 ]
             }
             $($body)+
@@ -396,7 +396,7 @@ macro_rules! wrap_bin_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: rhs_rewrap($rhs:ty),
-            item: $vis:vis struct $name:ident
+            item: [$name:ident]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
     ) => {
@@ -413,7 +413,7 @@ macro_rules! wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: ref_rhs_rewrap(Self),
-        item: $vis:vis struct $name:ident $($body:tt)+
+        item: [$name:ident] [$($body:tt)+]
     ) => {
         $crate::generics_parse! {
             $crate::wrap_bin_op {
@@ -421,7 +421,7 @@ macro_rules! wrap_bin_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: ref_rhs_rewrap('newtype_derive Self) ,
-                    item: $vis struct $name
+                    item: [$name]
                 ]
             }
             $($body)+
@@ -432,7 +432,7 @@ macro_rules! wrap_bin_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: ref_rhs_rewrap($a:lifetime Self),
-            item: $vis:vis struct $name:ident
+            item: [$name:ident]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
     ) => {
@@ -442,7 +442,7 @@ macro_rules! wrap_bin_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: ref_rhs_rewrap($a Self),
-                    item: $vis struct $name ($t)
+                    item: [$name] [$t]
                 ]
             }
             [$($g:tt)*] [$($r:tt)*] [$($w:tt)*],
@@ -454,7 +454,7 @@ macro_rules! wrap_bin_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: ref_rhs_rewrap($a:lifetime Self),
-            item: $vis:vis struct $name:ident ($t:ty)
+            item: [$name:ident] [$t:ty]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
     ) => {
@@ -471,7 +471,7 @@ macro_rules! wrap_bin_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: ref_rhs_rewrap($rhs:ty),
-        item: $vis:vis struct $name:ident $($body:tt)+
+        item: [$name:ident] [$($body:tt)+]
     ) => {
         $crate::generics_parse! {
             $crate::wrap_bin_op {
@@ -479,7 +479,7 @@ macro_rules! wrap_bin_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: ref_rhs_rewrap('newtype_derive $rhs),
-                    item: $vis struct $name
+                    item: [$name]
                 ]
             }
             $($body)+
@@ -490,7 +490,7 @@ macro_rules! wrap_bin_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: ref_rhs_rewrap($a:lifetime $rhs:ty),
-            item: $vis:vis struct $name:ident
+            item: [$name:ident]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
     ) => {
@@ -500,7 +500,7 @@ macro_rules! wrap_bin_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: ref_rhs_rewrap($a $rhs),
-                    item: $vis struct $name ($t)
+                    item: [$name] [$t]
                 ]
             }
             [$($g:tt)*] [$($r:tt)*] [$($w:tt)*],
@@ -512,7 +512,7 @@ macro_rules! wrap_bin_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: ref_rhs_rewrap($a:lifetime $rhs:ty),
-            item: $vis:vis struct $name:ident ($t:ty)
+            item: [$name:ident] [$t:ty]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
     ) => {
@@ -627,221 +627,221 @@ macro_rules! wrap_un_op {
 
 #[macro_export]
 macro_rules! NewtypeAdd {
-    ((*) $($tts:tt)*) => {
-        $crate::NewtypeAdd! { () $($tts)* }
-        $crate::NewtypeAdd! { (&self) $($tts)* }
-        $crate::NewtypeAdd! { (&Self) $($tts)* }
-        $crate::NewtypeAdd! { (&self, Self) $($tts)* }
+    ((*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::NewtypeAdd! { () $vis struct $name $($body)+ }
+        $crate::NewtypeAdd! { (&self) $vis struct $name $($body)+ }
+        $crate::NewtypeAdd! { (&Self) $vis struct $name $($body)+ }
+        $crate::NewtypeAdd! { (&self, Self) $vis struct $name $($body)+ }
     };
-    (() $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Add)::add, kind: simple, item: $($tts)* }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Add)::add, kind: simple, item: [$name] [$($body)+] }
     };
-    ((&self) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Add)::add, kind: simple_ref, item: $($tts)* }
+    ((&self) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Add)::add, kind: simple_ref, item: [$name] [$($body)+] }
     };
-    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Add)::add, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    ((&self, $($rhs:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Add)::add, kind: ref_rhs_rewrap($($rhs)*), item: [$name] [$($body)+] }
     };
-    (($($rhs:tt)*) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Add)::add, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    (($($rhs:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Add)::add, kind: rhs_rewrap($($rhs)*), item: [$name] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeBitAnd {
-    ((*) $($tts:tt)*) => {
-        $crate::NewtypeBitAnd! { () $($tts)* }
-        $crate::NewtypeBitAnd! { (&self) $($tts)* }
-        $crate::NewtypeBitAnd! { (&Self) $($tts)* }
-        $crate::NewtypeBitAnd! { (&self, Self) $($tts)* }
+    ((*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::NewtypeBitAnd! { () $vis struct $name $($body)+ }
+        $crate::NewtypeBitAnd! { (&self) $vis struct $name $($body)+ }
+        $crate::NewtypeBitAnd! { (&Self) $vis struct $name $($body)+ }
+        $crate::NewtypeBitAnd! { (&self, Self) $vis struct $name $($body)+ }
     };
-    (() $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitAnd)::bitand, kind: simple, item: $($tts)* }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitAnd)::bitand, kind: simple, item: [$name] [$($body)+] }
     };
-    ((&self) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitAnd)::bitand, kind: simple_ref, item: $($tts)* }
+    ((&self) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitAnd)::bitand, kind: simple_ref, item: [$name] [$($body)+] }
     };
-    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitAnd)::bitand, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    ((&self, $($rhs:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitAnd)::bitand, kind: ref_rhs_rewrap($($rhs)*), item: [$name] [$($body)+] }
     };
-    (($($rhs:tt)*) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitAnd)::bitand, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    (($($rhs:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitAnd)::bitand, kind: rhs_rewrap($($rhs)*), item: [$name] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeBitOr {
-    ((*) $($tts:tt)*) => {
-        $crate::NewtypeBitOr! { () $($tts)* }
-        $crate::NewtypeBitOr! { (&self) $($tts)* }
-        $crate::NewtypeBitOr! { (&Self) $($tts)* }
-        $crate::NewtypeBitOr! { (&self, Self) $($tts)* }
+    ((*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::NewtypeBitOr! { () $vis struct $name $($body)+ }
+        $crate::NewtypeBitOr! { (&self) $vis struct $name $($body)+ }
+        $crate::NewtypeBitOr! { (&Self) $vis struct $name $($body)+ }
+        $crate::NewtypeBitOr! { (&self, Self) $vis struct $name $($body)+ }
     };
-    (() $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitOr)::bitor, kind: simple, item: $($tts)* }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitOr)::bitor, kind: simple, item: [$name] [$($body)+] }
     };
-    ((&self) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitOr)::bitor, kind: simple_ref, item: $($tts)* }
+    ((&self) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitOr)::bitor, kind: simple_ref, item: [$name] [$($body)+] }
     };
-    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitOr)::bitor, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    ((&self, $($rhs:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitOr)::bitor, kind: ref_rhs_rewrap($($rhs)*), item: [$name] [$($body)+] }
     };
-    (($($rhs:tt)*) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitOr)::bitor, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    (($($rhs:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitOr)::bitor, kind: rhs_rewrap($($rhs)*), item: [$name] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeBitXor {
-    ((*) $($tts:tt)*) => {
-        $crate::NewtypeBitXor! { () $($tts)* }
-        $crate::NewtypeBitXor! { (&self) $($tts)* }
-        $crate::NewtypeBitXor! { (&Self) $($tts)* }
-        $crate::NewtypeBitXor! { (&self, Self) $($tts)* }
+    ((*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::NewtypeBitXor! { () $vis struct $name $($body)+ }
+        $crate::NewtypeBitXor! { (&self) $vis struct $name $($body)+ }
+        $crate::NewtypeBitXor! { (&Self) $vis struct $name $($body)+ }
+        $crate::NewtypeBitXor! { (&self, Self) $vis struct $name $($body)+ }
     };
-    (() $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitXor)::bitxor, kind: simple, item: $($tts)* }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitXor)::bitxor, kind: simple, item: [$name] [$($body)+] }
     };
-    ((&self) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitXor)::bitxor, kind: simple_ref, item: $($tts)* }
+    ((&self) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitXor)::bitxor, kind: simple_ref, item: [$name] [$($body)+] }
     };
-    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitXor)::bitxor, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    ((&self, $($rhs:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitXor)::bitxor, kind: ref_rhs_rewrap($($rhs)*), item: [$name] [$($body)+] }
     };
-    (($($rhs:tt)*) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitXor)::bitxor, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    (($($rhs:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitXor)::bitxor, kind: rhs_rewrap($($rhs)*), item: [$name] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeDiv {
-    ((*) $($tts:tt)*) => {
-        $crate::NewtypeDiv! { () $($tts)* }
-        $crate::NewtypeDiv! { (&self) $($tts)* }
-        $crate::NewtypeDiv! { (&Self) $($tts)* }
-        $crate::NewtypeDiv! { (&self, Self) $($tts)* }
+    ((*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::NewtypeDiv! { () $vis struct $name $($body)+ }
+        $crate::NewtypeDiv! { (&self) $vis struct $name $($body)+ }
+        $crate::NewtypeDiv! { (&Self) $vis struct $name $($body)+ }
+        $crate::NewtypeDiv! { (&self, Self) $vis struct $name $($body)+ }
     };
-    (() $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Div)::div, kind: simple, item: $($tts)* }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Div)::div, kind: simple, item: [$name] [$($body)+] }
     };
-    ((&self) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Div)::div, kind: simple_ref, item: $($tts)* }
+    ((&self) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Div)::div, kind: simple_ref, item: [$name] [$($body)+] }
     };
-    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Div)::div, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    ((&self, $($rhs:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Div)::div, kind: ref_rhs_rewrap($($rhs)*), item: [$name] [$($body)+] }
     };
-    (($($rhs:tt)*) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Div)::div, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    (($($rhs:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Div)::div, kind: rhs_rewrap($($rhs)*), item: [$name] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeMul {
-    ((*) $($tts:tt)*) => {
-        $crate::NewtypeMul! { () $($tts)* }
-        $crate::NewtypeMul! { (&self) $($tts)* }
-        $crate::NewtypeMul! { (&Self) $($tts)* }
-        $crate::NewtypeMul! { (&self, Self) $($tts)* }
+    ((*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::NewtypeMul! { () $vis struct $name $($body)+ }
+        $crate::NewtypeMul! { (&self) $vis struct $name $($body)+ }
+        $crate::NewtypeMul! { (&Self) $vis struct $name $($body)+ }
+        $crate::NewtypeMul! { (&self, Self) $vis struct $name $($body)+ }
     };
-    (() $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Mul)::mul, kind: simple, item: $($tts)* }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Mul)::mul, kind: simple, item: [$name] [$($body)+] }
     };
-    ((&self) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Mul)::mul, kind: simple_ref, item: $($tts)* }
+    ((&self) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Mul)::mul, kind: simple_ref, item: [$name] [$($body)+] }
     };
-    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Mul)::mul, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    ((&self, $($rhs:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Mul)::mul, kind: ref_rhs_rewrap($($rhs)*), item: [$name] [$($body)+] }
     };
-    (($($rhs:tt)*) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Mul)::mul, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    (($($rhs:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Mul)::mul, kind: rhs_rewrap($($rhs)*), item: [$name] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeRem {
-    ((*) $($tts:tt)*) => {
-        $crate::NewtypeRem! { () $($tts)* }
-        $crate::NewtypeRem! { (&self) $($tts)* }
-        $crate::NewtypeRem! { (&Self) $($tts)* }
-        $crate::NewtypeRem! { (&self, Self) $($tts)* }
+    ((*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::NewtypeRem! { () $vis struct $name $($body)+ }
+        $crate::NewtypeRem! { (&self) $vis struct $name $($body)+ }
+        $crate::NewtypeRem! { (&Self) $vis struct $name $($body)+ }
+        $crate::NewtypeRem! { (&self, Self) $vis struct $name $($body)+ }
     };
-    (() $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Rem)::rem, kind: simple, item: $($tts)* }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Rem)::rem, kind: simple, item: [$name] [$($body)+] }
     };
-    ((&self) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Rem)::rem, kind: simple_ref, item: $($tts)* }
+    ((&self) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Rem)::rem, kind: simple_ref, item: [$name] [$($body)+] }
     };
-    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Rem)::rem, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    ((&self, $($rhs:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Rem)::rem, kind: ref_rhs_rewrap($($rhs)*), item: [$name] [$($body)+] }
     };
-    (($($rhs:tt)*) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Rem)::rem, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    (($($rhs:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Rem)::rem, kind: rhs_rewrap($($rhs)*), item: [$name] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeSub {
-    ((*) $($tts:tt)*) => {
-        $crate::NewtypeSub! { () $($tts)* }
-        $crate::NewtypeSub! { (&self) $($tts)* }
-        $crate::NewtypeSub! { (&Self) $($tts)* }
-        $crate::NewtypeSub! { (&self, Self) $($tts)* }
+    ((*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::NewtypeSub! { () $vis struct $name $($body)+ }
+        $crate::NewtypeSub! { (&self) $vis struct $name $($body)+ }
+        $crate::NewtypeSub! { (&Self) $vis struct $name $($body)+ }
+        $crate::NewtypeSub! { (&self, Self) $vis struct $name $($body)+ }
     };
-    (() $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Sub)::sub, kind: simple, item: $($tts)* }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Sub)::sub, kind: simple, item: [$name] [$($body)+] }
     };
-    ((&self) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Sub)::sub, kind: simple_ref, item: $($tts)* }
+    ((&self) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Sub)::sub, kind: simple_ref, item: [$name] [$($body)+] }
     };
-    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Sub)::sub, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    ((&self, $($rhs:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Sub)::sub, kind: ref_rhs_rewrap($($rhs)*), item: [$name] [$($body)+] }
     };
-    (($($rhs:tt)*) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Sub)::sub, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    (($($rhs:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Sub)::sub, kind: rhs_rewrap($($rhs)*), item: [$name] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeShl {
-    ((*) $($tts:tt)*) => {
-        $crate::NewtypeShl! { () $($tts)* }
-        $crate::NewtypeShl! { (&self) $($tts)* }
-        $crate::NewtypeShl! { (&Self) $($tts)* }
-        $crate::NewtypeShl! { (&self, Self) $($tts)* }
+    ((*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::NewtypeShl! { () $vis struct $name $($body)+ }
+        $crate::NewtypeShl! { (&self) $vis struct $name $($body)+ }
+        $crate::NewtypeShl! { (&Self) $vis struct $name $($body)+ }
+        $crate::NewtypeShl! { (&self, Self) $vis struct $name $($body)+ }
     };
-    (() $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Shl)::shl, kind: simple, item: $($tts)* }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Shl)::shl, kind: simple, item: [$name] [$($body)+] }
     };
-    ((&self) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Shl)::shl, kind: simple_ref, item: $($tts)* }
+    ((&self) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Shl)::shl, kind: simple_ref, item: [$name] [$($body)+] }
     };
-    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Shl)::shl, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    ((&self, $($rhs:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Shl)::shl, kind: ref_rhs_rewrap($($rhs)*), item: [$name] [$($body)+] }
     };
-    (($($rhs:tt)*) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Shl)::shl, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    (($($rhs:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Shl)::shl, kind: rhs_rewrap($($rhs)*), item: [$name] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeShr {
-    ((*) $($tts:tt)*) => {
-        $crate::NewtypeShr! { () $($tts)* }
-        $crate::NewtypeShr! { (&self) $($tts)* }
-        $crate::NewtypeShr! { (&Self) $($tts)* }
-        $crate::NewtypeShr! { (&self, Self) $($tts)* }
+    ((*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::NewtypeShr! { () $vis struct $name $($body)+ }
+        $crate::NewtypeShr! { (&self) $vis struct $name $($body)+ }
+        $crate::NewtypeShr! { (&Self) $vis struct $name $($body)+ }
+        $crate::NewtypeShr! { (&self, Self) $vis struct $name $($body)+ }
     };
-    (() $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Shr)::shr, kind: simple, item: $($tts)* }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Shr)::shr, kind: simple, item: [$name] [$($body)+] }
     };
-    ((&self) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Shr)::shr, kind: simple_ref, item: $($tts)* }
+    ((&self) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Shr)::shr, kind: simple_ref, item: [$name] [$($body)+] }
     };
-    ((&self, $($rhs:tt)*) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Shr)::shr, kind: ref_rhs_rewrap($($rhs)*), item: $($tts)* }
+    ((&self, $($rhs:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Shr)::shr, kind: ref_rhs_rewrap($($rhs)*), item: [$name] [$($body)+] }
     };
-    (($($rhs:tt)*) $($tts:tt)*) => {
-        $crate::wrap_bin_op! { trait: ($crate::std_ops_Shr)::shr, kind: rhs_rewrap($($rhs)*), item: $($tts)* }
+    (($($rhs:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Shr)::shr, kind: rhs_rewrap($($rhs)*), item: [$name] [$($body)+] }
     };
 }
 
