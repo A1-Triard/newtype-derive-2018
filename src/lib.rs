@@ -813,7 +813,7 @@ macro_rules! wrap_un_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple,
-        item: $vis:vis struct $name:ident $($body:tt)+
+        item: [$name:ident] [$($body:tt)+]
     ) => {
         $crate::generics_parse! {
             $crate::wrap_un_op {
@@ -821,7 +821,7 @@ macro_rules! wrap_un_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: simple,
-                    item: $vis struct $name
+                    item: [$name]
                 ]
             }
             $($body)+
@@ -832,7 +832,7 @@ macro_rules! wrap_un_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: simple,
-            item: $vis:vis struct $name:ident
+            item: [$name:ident]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
     ) => {
@@ -849,7 +849,7 @@ macro_rules! wrap_un_op {
     (
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple_ref,
-        item: $vis:vis struct $name:ident $($body:tt)+
+        item: [$name:ident] [$($body:tt)+]
     ) => {
         $crate::generics_parse! {
             $crate::wrap_un_op {
@@ -857,7 +857,7 @@ macro_rules! wrap_un_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: simple_ref('newtype_derive),
-                    item: $vis struct $name
+                    item: [$name]
                 ]
             }
             $($body)+
@@ -868,7 +868,7 @@ macro_rules! wrap_un_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: simple_ref($a:lifetime),
-            item: $vis:vis struct $name:ident
+            item: [$name:ident]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
     ) => {
@@ -878,7 +878,7 @@ macro_rules! wrap_un_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: simple_ref($a),
-                    item: $vis struct $name ($t)
+                    item: [$name] [$t]
                 ]
             }
             [$($g:tt)*] [$($r:tt)*] [$($w:tt)*],
@@ -890,7 +890,7 @@ macro_rules! wrap_un_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: simple_ref($a:lifetime),
-            item: $vis:vis struct $name:ident ($t:ty)
+            item: [$name:ident] [$t:ty]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
     ) => {
@@ -907,29 +907,29 @@ macro_rules! wrap_un_op {
 
 #[macro_export]
 macro_rules! NewtypeNeg {
-    ((*) $($tts:tt)*) => {
-        $crate::NewtypeNeg! { () $($tts)* }
-        $crate::NewtypeNeg! { (&self) $($tts)* }
+    ((*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::NewtypeNeg! { () $vis struct $name $($body)+ }
+        $crate::NewtypeNeg! { (&self) $vis struct $name $($body)+ }
     };
-    (() $($tts:tt)*) => {
-        $crate::wrap_un_op! { trait: ($crate::std_ops_Neg)::neg, kind: simple, item: $($tts)* }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_un_op! { trait: ($crate::std_ops_Neg)::neg, kind: simple, item: [$name] [$($body)+] }
     };
-    ((&self) $($tts:tt)*) => {
-        $crate::wrap_un_op! { trait: ($crate::std_ops_Neg)::neg, kind: simple_ref, item: $($tts)* }
+    ((&self) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_un_op! { trait: ($crate::std_ops_Neg)::neg, kind: simple_ref, item: [$name] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeNot {
-    ((*) $($tts:tt)*) => {
-        $crate::NewtypeNot! { () $($tts)* }
-        $crate::NewtypeNot! { (&self) $($tts)* }
+    ((*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::NewtypeNot! { () $vis struct $name $($body)+ }
+        $crate::NewtypeNot! { (&self) $vis struct $name $($body)+ }
     };
-    (() $($tts:tt)*) => {
-        $crate::wrap_un_op! { trait: ($crate::std_ops_Not)::not, kind: simple, item: $($tts)* }
+    (() $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_un_op! { trait: ($crate::std_ops_Not)::not, kind: simple, item: [$name] [$($body)+] }
     };
-    ((&self) $($tts:tt)*) => {
-        $crate::wrap_un_op! { trait: ($crate::std_ops_Not)::not, kind: simple_ref, item: $($tts)* }
+    ((&self) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_un_op! { trait: ($crate::std_ops_Not)::not, kind: simple_ref, item: [$name] [$($body)+] }
     };
 }
 
