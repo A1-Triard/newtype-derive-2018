@@ -7,22 +7,24 @@
 // files in the project carrying such notice may not be copied, modified,
 // or distributed except according to those terms.
 
-#[macro_use] extern crate macro_attr_2018;
-#[macro_use] extern crate newtype_derive_2018;
+use macro_attr_2018::macro_attr;
+use newtype_derive_2018::*;
 
 macro_attr! {
-    #[derive(Copy, Clone, Eq, PartialEq, Debug,
+    #[derive(
+        Copy, Clone, Eq, PartialEq, Debug,
         NewtypeAdd!(*),
         NewtypeNeg!(*),
-        )]
+    )]
     pub struct Dummy(i32);
 }
 
 macro_attr! {
-    #[derive(Copy, Clone, Eq, PartialEq, Debug,
+    #[derive(
+        Copy, Clone, Eq, PartialEq, Debug,
         NewtypeAdd!(*),
         NewtypeNeg!(*),
-        )]
+    )]
     pub struct DummyPub(pub i32);
 }
 

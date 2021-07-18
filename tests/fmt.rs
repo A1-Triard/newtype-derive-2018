@@ -7,11 +7,10 @@
 // files in the project carrying such notice may not be copied, modified,
 // or distributed except according to those terms.
 
-#[macro_use] extern crate macro_attr_2018;
-#[macro_use] extern crate newtype_derive_2018;
+use macro_attr_2018::macro_attr;
+use newtype_derive_2018::*;
 
-use std::fmt::{self, Binary, Debug, Display, LowerExp, LowerHex, Octal, Pointer,
-    UpperExp, UpperHex};
+use std::fmt::{self, Binary, Debug, Display, LowerExp, LowerHex, Octal, Pointer, UpperExp, UpperHex};
 
 macro_rules! impl_fmt {
     (impl $tr:ident for $name:ident: $msg:expr) => {

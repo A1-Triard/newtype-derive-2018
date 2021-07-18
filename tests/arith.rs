@@ -8,11 +8,13 @@
 // or distributed except according to those terms.
 
 #![recursion_limit = "128"]
-#[macro_use] extern crate macro_attr_2018;
-#[macro_use] extern crate newtype_derive_2018;
+
+use macro_attr_2018::macro_attr;
+use newtype_derive_2018::*;
 
 macro_attr! {
-    #[derive(Copy, Clone, Eq, PartialEq, Debug,
+    #[derive(
+        Copy, Clone, Eq, PartialEq, Debug,
         NewtypeAdd!, NewtypeAdd!(&self), NewtypeAdd!(i32), NewtypeAdd!(&self, i32),
         NewtypeBitAnd!, NewtypeBitAnd!(&self),
         NewtypeBitOr!, NewtypeBitOr!(&self),
@@ -21,13 +23,11 @@ macro_attr! {
         NewtypeMul!, NewtypeMul!(&self),
         NewtypeRem!, NewtypeRem!(&self),
         NewtypeSub!, NewtypeSub!(&self),
-
         NewtypeShl!(), NewtypeShl!(&self), NewtypeShl!(usize), NewtypeShl!(&self, usize),
         NewtypeShr!(), NewtypeShr!(&self), NewtypeShr!(usize), NewtypeShr!(&self, usize),
-
         NewtypeNeg!, NewtypeNeg!(&self),
         NewtypeNot!, NewtypeNot!(&self),
-        )]
+    )]
     pub struct Dummy(i32);
 }
 

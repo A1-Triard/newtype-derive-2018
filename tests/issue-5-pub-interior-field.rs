@@ -8,13 +8,11 @@
 // or distributed except according to those terms.
 
 #![recursion_limit = "128"]
-#![cfg_attr(feature = "std-unstable", feature(zero_one))]
-#![allow(deprecated)]
-#[macro_use] extern crate macro_attr_2018;
-#[macro_use] extern crate newtype_derive_2018;
 
-use std::fmt::{self, Binary, Debug, Display, LowerExp, LowerHex, Octal, Pointer,
-    UpperExp, UpperHex};
+use macro_attr_2018::macro_attr;
+use newtype_derive_2018::*;
+
+use std::fmt::{self, Binary, Debug, Display, LowerExp, LowerHex, Octal, Pointer, UpperExp, UpperHex};
 
 macro_rules! impl_fmt {
     (impl $tr:ident for $name:ident: $msg:expr) => {
@@ -27,7 +25,8 @@ macro_rules! impl_fmt {
 }
 
 macro_attr! {
-    #[derive(Copy, Clone, Eq, PartialEq, Debug,
+    #[derive(
+        Copy, Clone, Eq, PartialEq, Debug,
         NewtypeAdd!, NewtypeAdd!(&self), NewtypeAdd!(i32), NewtypeAdd!(&self, i32),
         NewtypeBitAnd!, NewtypeBitAnd!(&self),
         NewtypeBitOr!, NewtypeBitOr!(&self),
@@ -36,21 +35,20 @@ macro_attr! {
         NewtypeMul!, NewtypeMul!(&self),
         NewtypeRem!, NewtypeRem!(&self),
         NewtypeSub!, NewtypeSub!(&self),
-
         NewtypeShl!(), NewtypeShl!(&self), NewtypeShl!(usize), NewtypeShl!(&self, usize),
         NewtypeShr!(), NewtypeShr!(&self), NewtypeShr!(usize), NewtypeShr!(&self, usize),
-
         NewtypeNeg!, NewtypeNeg!(&self),
         NewtypeNot!, NewtypeNot!(&self),
-        )]
+    )]
     pub struct Dummy1(pub i32);
 }
 
 macro_attr! {
-    #[derive(Clone, Eq, PartialEq, Debug,
+    #[derive(
+        Clone, Eq, PartialEq, Debug,
         NewtypeDeref!, NewtypeDerefMut!,
         NewtypeIndex!(usize), NewtypeIndexMut!(usize)
-        )]
+    )]
     pub struct Dummy2(Vec<i32>);
 }
 
@@ -86,17 +84,4 @@ fn test_pub_interior_fields() {
     let _ = Dummy1(0);
     let _ = Dummy2(vec![0]);
     let _ = Dummy3(Dummy3Inner);
-}
-
-#[cfg(feature = "std-unstable")]
-mod std_unstable {
-    macro_attr! {
-        #[derive(Eq, PartialEq, Debug, NewtypeOne!, NewtypeZero!)]
-        struct Dummy4(pub i32);
-    }
-
-    #[test]
-    fn test_pub_interior_fields_std_unstable() {
-        let _ = Dummy4(0);
-    }
 }
