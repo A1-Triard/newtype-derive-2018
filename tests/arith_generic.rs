@@ -17,7 +17,7 @@ use std::ops::Add;
 macro_attr! {
     #[derive(
         Copy, Clone, Eq, PartialEq, Debug,
-        NewtypeAdd!(bound="T: Add<Output=T>"),
+        NewtypeAdd!(where T: Add<Output=T>),
         /*NewtypeAdd!(&self), NewtypeAdd!(i32), NewtypeAdd!(&self, i32),
         NewtypeBitAnd!, NewtypeBitAnd!(&self),
         NewtypeBitOr!, NewtypeBitOr!(&self),
