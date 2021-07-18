@@ -70,7 +70,16 @@
 //!
 //! All of these macros are named `Newtype$Trait`.
 //!
-//! All these macros support generic newtype structs.
+//! All these macros support generic newtype structs. By default, no bounds for generic
+//! parameters generated. To add constraints, they should wrap macros arguments (if any)
+//! within parenthesis, and add where clause after it. For example:
+//!
+//! ```rust
+//! #[derive(NewtypeAdd!(where T: Add<Output=T>))]
+//! #[derive(NewtypeAdd!((&self) where T: Add<Output=T>))]
+//! #[derive(NewtypeSub!((*) where T: Add<Output=T>))]
+//! pub struct Dummy<T>(T);
+//! ```
 //!
 //! ## Binary Arithmetic Operators
 //!
