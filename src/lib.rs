@@ -77,18 +77,22 @@
 //! Each of the binary arithmetic operators accept several deriving forms.
 //! To use `Add` on a struct `T` as an example:
 //!
-//! - `NewtypeAdd`: `impl Add<T, Output=T> for T`
-//! - `NewtypeAdd(&self)`: `impl<'a> Add<&'a T, Output=T> for &'a T`
-//! - `NewtypeAdd(U)`: `impl Add<U, Output=T> for T`
-//! - `NewtypeAdd(&self, U)`: `impl<'a> Add<U, Output=T> for &'a T`
-//! - `NewtypeAdd(*)`: All four combinations of `T` and `&T`
+//! | Attribute                 | Generated implementation                  |
+//! |---------------------------|-------------------------------------------|
+//! | `NewtypeAdd`              | `impl Add<T, Output=T> for T`             |
+//! | `NewtypeAdd(&self)`       | `impl<'a> Add<&'a T, Output=T> for &'a T` |
+//! | `NewtypeAdd(U)`           | `impl Add<U, Output=T> for T`             |
+//! | `NewtypeAdd(&self, U)`    | `impl<'a> Add<U, Output=T> for &'a T`     |
+//! | `NewtypeAdd(*)`           | All four combinations of `T` and `&T`     |
 //!
 //! The `*Assign` variants accept zero or one argument only. For example:
 //!
-//! - `NewtypeAddAssign`: `impl AddAssign<T> for T`
-//! - `NewtypeAddAssign(&Self)`: `impl<'a> Add<&'a T> for &'a T`
-//! - `NewtypeAddAssign(U)`: `impl Add<U> for T`
-//! - `NewtypeAddAssign(*)`: Implements for `T` and `&T`.
+//! | Attribute                 | Generated implementation                  |
+//! |---------------------------|-------------------------------------------|
+//! | `NewtypeAddAssign`        | `impl AddAssign<T> for T`                 |
+//! | `NewtypeAddAssign(&Self)` | `impl<'a> Add<&'a T> for &'a T`           |
+//! | `NewtypeAddAssign(U)`     | `impl Add<U> for T`                       |
+//! | `NewtypeAddAssign(*)`     | Implements for `T` and `&T`.              |
 //!
 //! In all cases, the implementation unwraps the newtype (where necessary),
 //! forwards to the wrapped value's implementation, then re-wraps the result in the newtype.
@@ -98,9 +102,11 @@
 //! Each of the binary arithmetic operators accept several deriving forms.
 //! To use `Neg` on a struct `T` as an example:
 //!
-//! - `NewtypeNeg`: `impl Neg<Output=T> for T`
-//! - `NewtypeNeg(&self)`: `impl<'a> Neg<Output=T> for &'a T`
-//! - `NewtypeNeg(*)`: both of the above
+//! | Attribute                 | Generated implementation                  |
+//! |---------------------------|-------------------------------------------|
+//! | `NewtypeNeg`              | `impl Neg<Output=T> for T`                |
+//! | `NewtypeNeg(&self)`       | `impl<'a> Neg<Output=T> for &'a T`        |
+//! | `NewtypeNeg(*)`           | Both of the above                         |
 //!
 //! In all cases, the implementation unwraps the newtype,
 //! forwards to the wrapped value's implementation, then re-wraps the result in the newtype.
