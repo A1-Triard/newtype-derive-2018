@@ -158,6 +158,7 @@
 //! # fn main() { }
 //! ```
 
+#![deny(warnings)]
 #![no_std]
 
 #[doc(hidden)]
