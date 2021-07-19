@@ -1646,56 +1646,56 @@ macro_rules! NewtypeBinary {
 
 #[macro_export]
 macro_rules! NewtypeDebug {
-    (() $vis:vis struct $name:ident $($body:tt)+) => {
-        $crate::wrap_fmt! { [$crate::std_fmt_Debug] [$name] [] [$($body)+] }
+    (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_Debug] [$name] [$($($bound)*)?] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeDisplay {
-    (() $vis:vis struct $name:ident $($body:tt)+) => {
-        $crate::wrap_fmt! { [$crate::std_fmt_Display] [$name] [] [$($body)+] }
+    (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_Display] [$name] [$($($bound)*)?] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeLowerExp {
-    (() $vis:vis struct $name:ident $($body:tt)+) => {
-        $crate::wrap_fmt! { [$crate::std_fmt_LowerExp] [$name] [] [$($body)+] }
+    (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_LowerExp] [$name] [$($($bound)*)?] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeLowerHex {
-    (() $vis:vis struct $name:ident $($body:tt)+) => {
-        $crate::wrap_fmt! { [$crate::std_fmt_LowerHex] [$name] [] [$($body)+] }
+    (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_LowerHex] [$name] [$($($bound)*)?] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeOctal {
-    (() $vis:vis struct $name:ident $($body:tt)+) => {
-        $crate::wrap_fmt! { [$crate::std_fmt_Octal] [$name] [] [$($body)+] }
+    (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_Octal] [$name] [$($($bound)*)?] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypePointer {
-    (() $vis:vis struct $name:ident $($body:tt)+) => {
-        $crate::wrap_fmt! { [$crate::std_fmt_Pointer] [$name] [] [$($body)+] }
+    (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_Pointer] [$name] [$($($bound)*)?] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeUpperExp {
-    (() $vis:vis struct $name:ident $($body:tt)+) => {
-        $crate::wrap_fmt! { [$crate::std_fmt_UpperExp] [$name] [] [$($body)+] }
+    (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_UpperExp] [$name] [$($($bound)*)?] [$($body)+] }
     };
 }
 
 #[macro_export]
 macro_rules! NewtypeUpperHex {
-    (() $vis:vis struct $name:ident $($body:tt)+) => {
-        $crate::wrap_fmt! { [$crate::std_fmt_UpperHex] [$name] [] [$($body)+] }
+    (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_fmt! { [$crate::std_fmt_UpperHex] [$name] [$($($bound)*)?] [$($body)+] }
     };
 }
