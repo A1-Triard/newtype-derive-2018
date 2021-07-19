@@ -1532,7 +1532,7 @@ macro_rules! NewtypeIndexMut {
         $crate::generics_parse! {
             $crate::NewtypeIndexMut_impl {
                 generics_parse_done
-                [$name] [] [$Index]
+                [$name] [] [] [] [$Index]
             }
             $($body)+
         }
@@ -1541,7 +1541,25 @@ macro_rules! NewtypeIndexMut {
         $crate::generics_parse! {
             $crate::NewtypeIndexMut_impl {
                 generics_parse_done
-                [$name] [$($bound)*] [$Index]
+                [$name] [] [] [$($bound)*] [$Index]
+            }
+            $($body)+
+        }
+    };
+    ((<$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>($Index:ty) $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::generics_parse! {
+            $crate::NewtypeIndexMut_impl {
+                generics_parse_done
+                [$name] [ < $($lt),+ > ] [ $( < $($T),+ > )? ] [$($($bound)*)?] [$Index]
+            }
+            $($body)+
+        }
+    };
+    ((<$($($T:ident),+ $(,)?)?>($Index:ty) $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::generics_parse! {
+            $crate::NewtypeIndexMut_impl {
+                generics_parse_done
+                [$name] [] [ $( < $($T),+ > )? ] [$($($bound)*)?] [$Index]
             }
             $($body)+
         }
@@ -1553,7 +1571,7 @@ macro_rules! NewtypeIndexMut {
 macro_rules! NewtypeIndexMut_impl {
     (
         generics_parse_done
-        [$name:ident] [$($bound:tt)*] [$Index:ty]
+        [$name:ident] [$($lt:tt)*] [$($T:tt)*] [$($bound:tt)*] [$Index:ty]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t0:ty);
     ) => {
         $crate::generics_concat! {
@@ -1561,7 +1579,9 @@ macro_rules! NewtypeIndexMut_impl {
                 generics_concat_done
                 [$name] [$Index] [$t0]
             }
+            [$($lt)*] [] [],
             [$($g)*] [$($r)*] [$($w)*],
+            [$($T)*] [] [],
             [] [] [where $($bound)*]
         }
     };
