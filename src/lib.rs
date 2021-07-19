@@ -715,6 +715,12 @@ macro_rules! NewtypeBitAnd {
     ((($Rhs:ty) where $($bound:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
         $crate::wrap_bin_op! { trait: ($crate::std_ops_BitAnd)::bitand, kind: rhs_rewrap($Rhs), item: [$name] [] [] [$($bound)*] [$($body)+] }
     };
+    ((<$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>($Rhs:ty) $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitAnd)::bitand, kind: rhs_rewrap($Rhs), item: [$name] [ < $($lt),+ > ] [ $( < $($T),+ > )? ] [] [$($body)+] }
+    };
+    ((<$($($T:ident),+ $(,)?)?>($Rhs:ty) $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitAnd)::bitand, kind: rhs_rewrap($Rhs), item: [$name] [] [ $( < $($T),+ > )? ] [] [$($body)+] }
+    };
 }
 
 #[macro_export]
@@ -772,6 +778,12 @@ macro_rules! NewtypeBitOr {
     };
     ((($Rhs:ty) where $($bound:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
         $crate::wrap_bin_op! { trait: ($crate::std_ops_BitOr)::bitor, kind: rhs_rewrap($Rhs), item: [$name] [] [] [$($bound)*] [$($body)+] }
+    };
+    ((<$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>($Rhs:ty) $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitOr)::bitor, kind: rhs_rewrap($Rhs), item: [$name] [ < $($lt),+ > ] [ $( < $($T),+ > )? ] [] [$($body)+] }
+    };
+    ((<$($($T:ident),+ $(,)?)?>($Rhs:ty) $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitOr)::bitor, kind: rhs_rewrap($Rhs), item: [$name] [] [ $( < $($T),+ > )? ] [] [$($body)+] }
     };
 }
 
@@ -831,6 +843,12 @@ macro_rules! NewtypeBitXor {
     ((($Rhs:ty) where $($bound:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
         $crate::wrap_bin_op! { trait: ($crate::std_ops_BitXor)::bitxor, kind: rhs_rewrap($Rhs), item: [$name] [] [] [$($bound)*] [$($body)+] }
     };
+    ((<$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>($Rhs:ty) $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitXor)::bitxor, kind: rhs_rewrap($Rhs), item: [$name] [ < $($lt),+ > ] [ $( < $($T),+ > )? ] [] [$($body)+] }
+    };
+    ((<$($($T:ident),+ $(,)?)?>($Rhs:ty) $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_BitXor)::bitxor, kind: rhs_rewrap($Rhs), item: [$name] [] [ $( < $($T),+ > )? ] [] [$($body)+] }
+    };
 }
 
 #[macro_export]
@@ -888,6 +906,12 @@ macro_rules! NewtypeDiv {
     };
     ((($Rhs:ty) where $($bound:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
         $crate::wrap_bin_op! { trait: ($crate::std_ops_Div)::div, kind: rhs_rewrap($Rhs), item: [$name] [] [] [$($bound)*] [$($body)+] }
+    };
+    ((<$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>($Rhs:ty) $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Div)::div, kind: rhs_rewrap($Rhs), item: [$name] [ < $($lt),+ > ] [ $( < $($T),+ > )? ] [] [$($body)+] }
+    };
+    ((<$($($T:ident),+ $(,)?)?>($Rhs:ty) $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Div)::div, kind: rhs_rewrap($Rhs), item: [$name] [] [ $( < $($T),+ > )? ] [] [$($body)+] }
     };
 }
 
@@ -947,6 +971,12 @@ macro_rules! NewtypeMul {
     ((($Rhs:ty) where $($bound:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
         $crate::wrap_bin_op! { trait: ($crate::std_ops_Mul)::mul, kind: rhs_rewrap($Rhs), item: [$name] [] [] [$($bound)*] [$($body)+] }
     };
+    ((<$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>($Rhs:ty) $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Mul)::mul, kind: rhs_rewrap($Rhs), item: [$name] [ < $($lt),+ > ] [ $( < $($T),+ > )? ] [] [$($body)+] }
+    };
+    ((<$($($T:ident),+ $(,)?)?>($Rhs:ty) $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Mul)::mul, kind: rhs_rewrap($Rhs), item: [$name] [] [ $( < $($T),+ > )? ] [] [$($body)+] }
+    };
 }
 
 #[macro_export]
@@ -1004,6 +1034,12 @@ macro_rules! NewtypeRem {
     };
     ((($Rhs:ty) where $($bound:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
         $crate::wrap_bin_op! { trait: ($crate::std_ops_Rem)::rem, kind: rhs_rewrap($Rhs), item: [$name] [] [] [$($bound)*] [$($body)+] }
+    };
+    ((<$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>($Rhs:ty) $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Rem)::rem, kind: rhs_rewrap($Rhs), item: [$name] [ < $($lt),+ > ] [ $( < $($T),+ > )? ] [] [$($body)+] }
+    };
+    ((<$($($T:ident),+ $(,)?)?>($Rhs:ty) $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Rem)::rem, kind: rhs_rewrap($Rhs), item: [$name] [] [ $( < $($T),+ > )? ] [] [$($body)+] }
     };
 }
 
@@ -1063,6 +1099,12 @@ macro_rules! NewtypeSub {
     ((($Rhs:ty) where $($bound:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
         $crate::wrap_bin_op! { trait: ($crate::std_ops_Sub)::sub, kind: rhs_rewrap($Rhs), item: [$name] [] [] [$($bound)*] [$($body)+] }
     };
+    ((<$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>($Rhs:ty) $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Sub)::sub, kind: rhs_rewrap($Rhs), item: [$name] [ < $($lt),+ > ] [ $( < $($T),+ > )? ] [] [$($body)+] }
+    };
+    ((<$($($T:ident),+ $(,)?)?>($Rhs:ty) $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Sub)::sub, kind: rhs_rewrap($Rhs), item: [$name] [] [ $( < $($T),+ > )? ] [] [$($body)+] }
+    };
 }
 
 #[macro_export]
@@ -1121,6 +1163,12 @@ macro_rules! NewtypeShl {
     ((($Rhs:ty) where $($bound:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
         $crate::wrap_bin_op! { trait: ($crate::std_ops_Shl)::shl, kind: rhs_rewrap($Rhs), item: [$name] [] [] [$($bound)*] [$($body)+] }
     };
+    ((<$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>($Rhs:ty) $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Shl)::shl, kind: rhs_rewrap($Rhs), item: [$name] [ < $($lt),+ > ] [ $( < $($T),+ > )? ] [] [$($body)+] }
+    };
+    ((<$($($T:ident),+ $(,)?)?>($Rhs:ty) $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Shl)::shl, kind: rhs_rewrap($Rhs), item: [$name] [] [ $( < $($T),+ > )? ] [] [$($body)+] }
+    };
 }
 
 #[macro_export]
@@ -1178,6 +1226,12 @@ macro_rules! NewtypeShr {
     };
     ((($Rhs:ty) where $($bound:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
         $crate::wrap_bin_op! { trait: ($crate::std_ops_Shr)::shr, kind: rhs_rewrap($Rhs), item: [$name] [] [] [$($bound)*] [$($body)+] }
+    };
+    ((<$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>($Rhs:ty) $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Shr)::shr, kind: rhs_rewrap($Rhs), item: [$name] [ < $($lt),+ > ] [ $( < $($T),+ > )? ] [] [$($body)+] }
+    };
+    ((<$($($T:ident),+ $(,)?)?>($Rhs:ty) $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::wrap_bin_op! { trait: ($crate::std_ops_Shr)::shr, kind: rhs_rewrap($Rhs), item: [$name] [] [ $( < $($T),+ > )? ] [] [$($body)+] }
     };
 }
 
