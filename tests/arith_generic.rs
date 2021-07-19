@@ -12,18 +12,21 @@
 
 use macro_attr_2018::macro_attr;
 use newtype_derive_2018::*;
-use std::ops::Add;
+use std::ops::{Add, Div};
 
 macro_attr! {
     #[derive(
         Copy, Clone, Eq, PartialEq, Debug,
         NewtypeAdd!(where T: Add<Output=T>),
-        /*NewtypeAdd!(&self), NewtypeAdd!(i32), NewtypeAdd!(&self, i32),
-        NewtypeBitAnd!, NewtypeBitAnd!(&self),
+        NewtypeAdd!((&self) where T: Add<Output=T>),
+        NewtypeAdd!((i32) where T: Add<i32, Output=T>),
+        NewtypeAdd!((&self, i32) where T: Add<i32, Output=T>),
+        /*NewtypeBitAnd!, NewtypeBitAnd!(&self),
         NewtypeBitOr!, NewtypeBitOr!(&self),
-        NewtypeBitXor!, NewtypeBitXor!(&self),
-        NewtypeDiv!, NewtypeDiv!(&self),
-        NewtypeMul!, NewtypeMul!(&self),
+        NewtypeBitXor!, NewtypeBitXor!(&self),*/
+        NewtypeDiv!(where T: Div<Output=T>),
+        NewtypeDiv!((&self) where T: Div<Output=T>),
+        /*NewtypeMul!, NewtypeMul!(&self),
         NewtypeRem!, NewtypeRem!(&self),
         NewtypeSub!, NewtypeSub!(&self),
         NewtypeShl!(), NewtypeShl!(&self), NewtypeShl!(usize), NewtypeShl!(&self, usize),
@@ -31,7 +34,7 @@ macro_attr! {
         NewtypeNeg!, NewtypeNeg!(&self),
         NewtypeNot!, NewtypeNot!(&self),*/
     )]
-    pub struct Dummy<T>(T);
+    pub struct Dummy<T: Copy>(T);
 }
 
 #[test]
