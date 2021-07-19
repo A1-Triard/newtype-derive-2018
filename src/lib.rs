@@ -1512,7 +1512,16 @@ macro_rules! NewtypeIndexMut {
         $crate::generics_parse! {
             $crate::NewtypeIndexMut_impl {
                 generics_parse_done
-                [($Index) $vis struct $name ]
+                [$name] [] [$Index]
+            }
+            $($body)+
+        }
+    };
+    ((($Index:ty) where $($bound:tt)*) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::generics_parse! {
+            $crate::NewtypeIndexMut_impl {
+                generics_parse_done
+                [$name] [$($bound)*] [$Index]
             }
             $($body)+
         }
@@ -1524,8 +1533,22 @@ macro_rules! NewtypeIndexMut {
 macro_rules! NewtypeIndexMut_impl {
     (
         generics_parse_done
-        [($Index:ty) $vis:vis struct $name:ident ]
+        [$name:ident] [$($bound:tt)*] [$Index:ty]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t0:ty);
+    ) => {
+        $crate::generics_concat! {
+            $crate::NewtypeIndexMut_impl {
+                generics_concat_done
+                [$name] [$Index] [$t0]
+            }
+            [$($g)*] [$($r)*] [$($w)*],
+            [] [] [where $($bound)*]
+        }
+    };
+    (
+        generics_concat_done
+        [$name:ident] [$Index:ty] [$t0:ty]
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
     ) => {
         impl $($g)* $crate::std_ops_IndexMut<$Index> for $name $($r)* $($w)* {
             fn index_mut(&mut self, index: $Index) -> &mut Self::Output {
