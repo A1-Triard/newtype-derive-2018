@@ -95,7 +95,7 @@
 //! | Attribute                 | Generated implementation                  |
 //! |---------------------------|-------------------------------------------|
 //! | `NewtypeAdd`              | `impl Add<T, Output=T> for T`             |
-//! | `NewtypeAdd(&self)`       | `impl<'a> Add<T, Output=T> for &'a T` |
+//! | `NewtypeAdd(&self)`       | `impl<'a> Add<T, Output=T> for &'a T`     |
 //! | `NewtypeAdd(U)`           | `impl Add<U, Output=T> for T`             |
 //! | `NewtypeAdd(&self, U)`    | `impl<'a> Add<U, Output=T> for &'a T`     |
 //! | `NewtypeAdd(*)`           | All four combinations of `T` and `&T`     |
@@ -105,7 +105,6 @@
 //! | Attribute                 | Generated implementation                  |
 //! |---------------------------|-------------------------------------------|
 //! | `NewtypeAddAssign`        | `impl AddAssign<T> for T`                 |
-//! | `NewtypeAddAssign(&Self)` | `impl<'a> Add<&'a T> for &'a T`           |
 //! | `NewtypeAddAssign(U)`     | `impl Add<U> for T`                       |
 //! | `NewtypeAddAssign(*)`     | Implements for `T` and `&T`.              |
 //!
