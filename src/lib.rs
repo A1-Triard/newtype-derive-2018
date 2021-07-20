@@ -267,7 +267,8 @@ macro_rules! wrap_bin_op {
             kind: simple,
             item: [$name:ident] [$($bound:tt)*]
         ]
-        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
+        ($(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?);
     ) => {
         $crate::generics_concat! {
             $crate::wrap_bin_op {
@@ -275,7 +276,7 @@ macro_rules! wrap_bin_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: simple,
-                    item: [$name] [$t]
+                    item: [$name] [$t0] [$([$phantom])*]
                 ]
             }
             [$($g)*] [$($r)*] [$($w)*],
@@ -287,7 +288,7 @@ macro_rules! wrap_bin_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: simple,
-            item: [$name:ident] [$t:ty]
+            item: [$name:ident] [$t0:ty] [$([$phantom:ty])*]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
     ) => {
@@ -295,7 +296,10 @@ macro_rules! wrap_bin_op {
             impl $($g)* $($tr)*<$name $($r)*> for $name $($r)* $($w)* {
                 type Output = Self;
                 fn $meth(self, rhs: Self) -> Self {
-                    $name(<$t as $($tr)*<$t>>::$meth(self.0, rhs.0))
+                    $name(
+                        <$t0 as $($tr)*<$t0>>::$meth(self.0, rhs.0)
+                        $(, <$phantom as $crate::std_default_Default>::default())*
+                    )
                 }
             }
         }
@@ -325,7 +329,8 @@ macro_rules! wrap_bin_op {
             kind: simple_ref,
             item: [$a:lifetime] [$name:ident] [$($bound:tt)*]
         ]
-        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
+        ($(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?);
     ) => {
         $crate::generics_concat! {
             $crate::wrap_bin_op {
@@ -333,7 +338,7 @@ macro_rules! wrap_bin_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: simple_ref,
-                    item: [$a] [$name] [$t]
+                    item: [$a] [$name] [$t0] [$([$phantom])*]
                 ]
             }
             [ < $a > ] [] [],
@@ -346,7 +351,7 @@ macro_rules! wrap_bin_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: simple_ref,
-            item: [$a:lifetime] [$name:ident] [$t:ty]
+            item: [$a:lifetime] [$name:ident] [$t0:ty] [$([$phantom:ty])*]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
     ) => {
@@ -354,7 +359,10 @@ macro_rules! wrap_bin_op {
             impl $($g)* $($tr)*<$name $($r)*> for & $a $name $($r)* $($w)* {
                 type Output = $name $($r)*;
                 fn $meth(self, rhs: $name $($r)*) -> $name $($r)* {
-                    $name(<$t as $($tr)*<$t>>::$meth(self.0, rhs.0))
+                    $name(
+                        <$t0 as $($tr)*<$t0>>::$meth(self.0, rhs.0)
+                        $(, <$phantom as $crate::std_default_Default>::default())*
+                    )
                 }
             }
         }
@@ -384,7 +392,8 @@ macro_rules! wrap_bin_op {
             kind: rhs_rewrap(&Self),
             item: [$a:lifetime] [$name:ident] [$($bound:tt)*]
         ]
-        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
+        ($(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?);
     ) => {
         $crate::generics_concat! {
             $crate::wrap_bin_op {
@@ -392,7 +401,7 @@ macro_rules! wrap_bin_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: rhs_rewrap(&Self),
-                    item: [$a] [$name] [$t]
+                    item: [$a] [$name] [$t0] [$([$phantom])*]
                 ]
             }
             [ < $a > ] [] [],
@@ -405,7 +414,7 @@ macro_rules! wrap_bin_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: rhs_rewrap(&Self),
-            item: [$a:lifetime] [$name:ident] [$t:ty]
+            item: [$a:lifetime] [$name:ident] [$t0:ty] [$([$phantom:ty])*]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
     ) => {
@@ -413,7 +422,10 @@ macro_rules! wrap_bin_op {
             impl $($g)* $($tr)*<& $a $name $($r)*> for $name $($r)* $($w)* {
                 type Output = Self;
                 fn $meth(self, rhs: & $a Self) -> Self {
-                    $name(<$t as $($tr)*<$t>>::$meth(self.0, rhs.0))
+                    $name(
+                        <$t0 as $($tr)*<$t0>>::$meth(self.0, rhs.0)
+                        $(, <$phantom as $crate::std_default_Default>::default())*
+                    )
                 }
             }
         }
@@ -443,7 +455,8 @@ macro_rules! wrap_bin_op {
             kind: rhs_rewrap($Rhs:ty),
             item: [$name:ident] [$($lt:tt)*] [$($T:tt)*] [$($bound:tt)*]
         ]
-        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
+        ($(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?);
     ) => {
         $crate::generics_concat! {
             $crate::wrap_bin_op {
@@ -451,7 +464,7 @@ macro_rules! wrap_bin_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: rhs_rewrap($Rhs),
-                    item: [$name] [$t]
+                    item: [$name] [$t0] [$([$phantom])*]
                 ]
             }
             [$($lt)*] [] [],
@@ -465,7 +478,7 @@ macro_rules! wrap_bin_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: rhs_rewrap($Rhs:ty),
-            item: [$name:ident] [$t:ty]
+            item: [$name:ident] [$t0:ty] [$([$phantom:ty])*]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
     ) => {
@@ -473,7 +486,10 @@ macro_rules! wrap_bin_op {
             impl $($g)* $($tr)*<$Rhs> for $name $($r)* $($w)* {
                 type Output = Self;
                 fn $meth(self, rhs: $Rhs) -> Self {
-                    $name(<$t as $($tr)*<$Rhs>>::$meth(self.0, rhs))
+                    $name(
+                        <$t0 as $($tr)*<$Rhs>>::$meth(self.0, rhs)
+                        $(, <$phantom as $crate::std_default_Default>::default())*
+                    )
                 }
             }
         }
@@ -503,7 +519,8 @@ macro_rules! wrap_bin_op {
             kind: ref_rhs_rewrap(&Self),
             item: [$a:lifetime] [$b:lifetime] [$name:ident] [$($bound:tt)*]
         ]
-        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
+        ($(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?);
     ) => {
         $crate::generics_concat! {
             $crate::wrap_bin_op {
@@ -511,7 +528,7 @@ macro_rules! wrap_bin_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: ref_rhs_rewrap(&Self),
-                    item: [$a] [$b] [$name] [$t]
+                    item: [$a] [$b] [$name] [$t0] [$([$phantom])*]
                 ]
             }
             [ < $a, $b > ] [] [],
@@ -524,7 +541,7 @@ macro_rules! wrap_bin_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: ref_rhs_rewrap(&Self),
-            item: [$a:lifetime] [$b:lifetime] [$name:ident] [$t:ty]
+            item: [$a:lifetime] [$b:lifetime] [$name:ident] [$t0:ty] [$([$phantom:ty])*]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
     ) => {
@@ -532,7 +549,10 @@ macro_rules! wrap_bin_op {
             impl $($g)* $($tr)*<& $b $name $($r)*> for & $a $name $($r)* $($w)* {
                 type Output = $name $($r)*;
                 fn $meth(self, rhs: & $b $name $($r)*) -> $name $($r)* {
-                    $name(<$t as $($tr)*<$t>>::$meth(self.0, rhs.0))
+                    $name(
+                        <$t0 as $($tr)*<$t0>>::$meth(self.0, rhs.0)
+                        $(, <$phantom as $crate::std_default_Default>::default())*
+                    )
                 }
             }
         }
@@ -562,7 +582,8 @@ macro_rules! wrap_bin_op {
             kind: ref_rhs_rewrap($Rhs:ty),
             item: [$a:lifetime] [$name:ident] [$($lt:tt)*] [$($T:tt)*] [$($bound:tt)*]
         ]
-        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
+        ($(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?);
     ) => {
         $crate::generics_concat! {
             $crate::wrap_bin_op {
@@ -570,7 +591,7 @@ macro_rules! wrap_bin_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: ref_rhs_rewrap($Rhs),
-                    item: [$a] [$name] [$t]
+                    item: [$a] [$name] [$t0] [$([$phantom])*]
                 ]
             }
             [ < $a > ] [] [],
@@ -585,7 +606,7 @@ macro_rules! wrap_bin_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: ref_rhs_rewrap($Rhs:ty),
-            item: [$a:lifetime] [$name:ident] [$t:ty]
+            item: [$a:lifetime] [$name:ident] [$t0:ty] [$([$phantom:ty])*]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
     ) => {
@@ -593,7 +614,10 @@ macro_rules! wrap_bin_op {
             impl $($g)* $($tr)*<$Rhs> for & $a $name $($r)* $($w)* {
                 type Output = $name $($r)*;
                 fn $meth(self, rhs: $Rhs) -> $name $($r)* {
-                    $name(<$t as $($tr)*<$Rhs>>::$meth(self.0, rhs))
+                    $name(
+                        <$t0 as $($tr)*<$Rhs>>::$meth(self.0, rhs)
+                        $(, <$phantom as $crate::std_default_Default>::default())*
+                    )
                 }
             }
         }
@@ -1657,7 +1681,8 @@ macro_rules! wrap_un_op {
             kind: simple,
             item: [$name:ident] [$($bound:tt)*]
         ]
-        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
+        ($(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?);
     ) => {
         $crate::generics_concat! {
             $crate::wrap_un_op {
@@ -1665,7 +1690,7 @@ macro_rules! wrap_un_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: simple,
-                    item: [$name] [$t]
+                    item: [$name] [$t0] [$([$phantom])*]
                 ]
             }
             [$($g)*] [$($r)*] [$($w)*],
@@ -1677,7 +1702,7 @@ macro_rules! wrap_un_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: simple,
-            item: [$name:ident] [$t:ty]
+            item: [$name:ident] [$t0:ty] [$([$phantom:ty])*]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
     ) => {
@@ -1685,7 +1710,10 @@ macro_rules! wrap_un_op {
             impl $($g)* $($tr)* for $name $($r)* $($w)* {
                 type Output = Self;
                 fn $meth(self) -> Self {
-                    $name(<$t as $($tr)*>::$meth(self.0))
+                    $name(
+                        <$t0 as $($tr)*>::$meth(self.0)
+                        $(, <$phantom as $crate::std_default_Default>::default())*
+                    )
                 }
             }
         }
@@ -1715,7 +1743,8 @@ macro_rules! wrap_un_op {
             kind: simple_ref,
             item: [$a:lifetime] [$name:ident] [$($bound:tt)*]
         ]
-        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t:ty);
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
+        ($(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?);
     ) => {
         $crate::generics_concat! {
             $crate::wrap_un_op {
@@ -1723,7 +1752,7 @@ macro_rules! wrap_un_op {
                 [
                     trait: ($($tr)*)::$meth,
                     kind: simple_ref,
-                    item: [$a] [$name] [$t]
+                    item: [$a] [$name] [$t0] [$([$phantom])*]
                 ]
             }
             [ < $a > ] [] [],
@@ -1736,7 +1765,7 @@ macro_rules! wrap_un_op {
         [
             trait: ($($tr:tt)*)::$meth:ident,
             kind: simple_ref,
-            item: [$a:lifetime] [$name:ident] [$t:ty]
+            item: [$a:lifetime] [$name:ident] [$t0:ty] [$([$phantom:ty])*]
         ]
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
     ) => {
@@ -1744,7 +1773,10 @@ macro_rules! wrap_un_op {
             impl $($g)* $($tr)* for & $a $name $($r)* $($w)* {
                 type Output = $name $($r)*;
                 fn $meth(self) -> $name $($r)* {
-                    $name(<$t as $($tr)*>::$meth(self.0))
+                    $name(
+                        <$t0 as $($tr)*>::$meth(self.0)
+                        $(, <$phantom as $crate::std_default_Default>::default())*
+                    )
                 }
             }
         }
@@ -1808,7 +1840,8 @@ macro_rules! NewtypeDeref_impl {
     (
         generics_parse_done
         [$name:ident] [$($bound:tt)*]
-        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t0:ty);
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
+        ($(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?);
     ) => {
         $crate::generics_concat! {
             $crate::NewtypeDeref_impl {
@@ -1851,7 +1884,8 @@ macro_rules! NewtypeDerefMut_impl {
     (
         generics_parse_done
         [$name:ident] [$($bound:tt)*]
-        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t0:ty);
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
+        ($(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?);
     ) => {
         $crate::generics_concat! {
             $crate::NewtypeDerefMut_impl {
@@ -1919,7 +1953,8 @@ macro_rules! NewtypeIndex_impl {
     (
         generics_parse_done
         [$name:ident] [$($lt:tt)*] [$($T:tt)*] [$($bound:tt)*] [$Index:ty]
-        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t0:ty);
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
+        ($(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?);
     ) => {
         $crate::generics_concat! {
             $crate::NewtypeIndex_impl {
@@ -1993,7 +2028,8 @@ macro_rules! NewtypeIndexMut_impl {
     (
         generics_parse_done
         [$name:ident] [$($lt:tt)*] [$($T:tt)*] [$($bound:tt)*] [$Index:ty]
-        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t0:ty);
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
+        ($(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?);
     ) => {
         $crate::generics_concat! {
             $crate::NewtypeIndexMut_impl {
@@ -2034,7 +2070,8 @@ macro_rules! wrap_fmt {
     (
         generics_parse_done
         [$tr:path] [$name:ident] [$($bound:tt)*]
-        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] ($(pub)? $t0:ty);
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
+        ($(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?);
     ) => {
         $crate::generics_concat! {
             $crate::wrap_fmt {
