@@ -7,6 +7,12 @@
 // files in the project carrying such notice may not be copied, modified,
 // or distributed except according to those terms.
 
+#![deny(warnings)]
+#![doc(test(attr(deny(warnings))))]
+#![doc(test(attr(allow(dead_code))))]
+#![doc(test(attr(allow(unused_variables))))]
+#![doc(test(attr(allow(unused_macros))))]
+
 //! This crate provides several macros for deriving implementations of various traits for "newtype"
 //! wrappers (i.e. tuple structs with a single element).
 //! That is, given a tuple struct with exactly one field (e.g. `struct Buckets(i32)`),
@@ -172,7 +178,6 @@
 //! # fn main() { }
 //! ```
 
-#![deny(warnings)]
 #![no_std]
 
 #[doc(hidden)]
