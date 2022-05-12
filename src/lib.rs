@@ -58,7 +58,7 @@
 //! }
 //!
 //! # fn main() {
-//! let mut arr = I32Array(vec![1, 2, 3]);
+//! let arr = I32Array(vec![1, 2, 3]);
 //! assert_eq!(&*arr, &[1, 2, 3]);
 //! # }
 //! ```
