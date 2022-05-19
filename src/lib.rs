@@ -1331,9 +1331,10 @@ macro_rules! wrap_un_op {
     };
 
     (
+        [$a:lifetime]
         trait: ($($tr:tt)*)::$meth:ident,
         kind: simple_ref,
-        item: [$a:lifetime] [$name:ident] [$($bound:tt)*] [$($body:tt)+]
+        item: [$name:ident] [$($bound:tt)*] [$($body:tt)+]
     ) => {
         $crate::generics_parse! {
             $crate::wrap_un_op {
@@ -1403,8 +1404,11 @@ macro_rules! NewtypeNeg {
     (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
         $crate::wrap_un_op! { trait: ($crate::std_ops_Neg)::neg, kind: simple, item: [$name] [$($($bound)*)?] [$($body)+] }
     };
-    ((&self $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
-        $crate::wrap_un_op! { trait: ($crate::std_ops_Neg)::neg, kind: simple_ref, item: ['newtype_derive] [$name] [$($($bound)*)?] [$($body)+] }
+    ((& $($a:lifetime)? self $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::def_lt_a! {
+            [$($a)?]
+            $crate::wrap_un_op { trait: ($crate::std_ops_Neg)::neg, kind: simple_ref, item: [$name] [$($($bound)*)?] [$($body)+] }
+        }
     };
 }
 
@@ -1417,8 +1421,11 @@ macro_rules! NewtypeNot {
     (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
         $crate::wrap_un_op! { trait: ($crate::std_ops_Not)::not, kind: simple, item: [$name] [$($($bound)*)?] [$($body)+] }
     };
-    ((&self $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
-        $crate::wrap_un_op! { trait: ($crate::std_ops_Not)::not, kind: simple_ref, item: ['newtype_derive] [$name] [$($($bound)*)?] [$($body)+] }
+    ((& $($a:lifetime)? self $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($body:tt)+) => {
+        $crate::def_lt_a! {
+            [$($a)?]
+            $crate::wrap_un_op { trait: ($crate::std_ops_Not)::not, kind: simple_ref, item: [$name] [$($($bound)*)?] [$($body)+] }
+        }
     };
 }
 
