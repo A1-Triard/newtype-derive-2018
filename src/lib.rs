@@ -14,8 +14,9 @@
 #![doc(test(attr(allow(unused_macros))))]
 
 //! This crate provides several macros for deriving implementations of various traits for "newtype"
-//! wrappers (i.e. tuple structs with a single element).
+//! wrappers (i.e. tuple structs with a single non-zero sized element).
 //! That is, given a tuple struct with exactly one field (e.g. `struct Buckets(i32)`),
+//! (or exactly one field followed by any number of zero-sized fields)
 //! these macros will derive "obvious" implementations of traits such as
 //! `Add`, `Neg`, `Index`, `Deref`, etc.
 //!
@@ -686,7 +687,7 @@ macro_rules! wrap_bin_op {
 }
 
 /// Derives [`Add`](core::ops::Add) trait implementation for newtype
-/// wrappers (i.e. tuple structs with a single non-zero element).
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
 ///
 /// Accepts input in any of following forms:
 ///
@@ -832,6 +833,104 @@ macro_rules! NewtypeAdd {
     };
 }
 
+/// Derives [`BitAnd`](core::ops::BitAnd) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in any of following forms:
+///
+/// ```ignore
+/// (
+///     *
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+///
+/// ```
+///
+/// ```ignore
+/// (
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? self, & $($b:lifetime)? Self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(<$($($T:ident),+ $(,)?)?>)?
+///     & $($a:lifetime)? self, $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     <$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>
+///     & $($a:lifetime)? self, $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? Self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(<$($($T:ident),+ $(,)?)?>)?
+///     $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     <$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>
+///     $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeBitAnd {
     ((* $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -881,6 +980,104 @@ macro_rules! NewtypeBitAnd {
     };
 }
 
+/// Derives [`BitOr`](core::ops::BitOr) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in any of following forms:
+///
+/// ```ignore
+/// (
+///     *
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+///
+/// ```
+///
+/// ```ignore
+/// (
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? self, & $($b:lifetime)? Self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(<$($($T:ident),+ $(,)?)?>)?
+///     & $($a:lifetime)? self, $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     <$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>
+///     & $($a:lifetime)? self, $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? Self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(<$($($T:ident),+ $(,)?)?>)?
+///     $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     <$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>
+///     $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeBitOr {
     ((* $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -930,6 +1127,104 @@ macro_rules! NewtypeBitOr {
     };
 }
 
+/// Derives [`BitXor`](core::ops::BitXor) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in any of following forms:
+///
+/// ```ignore
+/// (
+///     *
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+///
+/// ```
+///
+/// ```ignore
+/// (
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? self, & $($b:lifetime)? Self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(<$($($T:ident),+ $(,)?)?>)?
+///     & $($a:lifetime)? self, $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     <$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>
+///     & $($a:lifetime)? self, $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? Self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(<$($($T:ident),+ $(,)?)?>)?
+///     $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     <$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>
+///     $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeBitXor {
     ((* $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -979,6 +1274,104 @@ macro_rules! NewtypeBitXor {
     };
 }
 
+/// Derives [`Div`](core::ops::Div) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in any of following forms:
+///
+/// ```ignore
+/// (
+///     *
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+///
+/// ```
+///
+/// ```ignore
+/// (
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? self, & $($b:lifetime)? Self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(<$($($T:ident),+ $(,)?)?>)?
+///     & $($a:lifetime)? self, $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     <$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>
+///     & $($a:lifetime)? self, $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? Self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(<$($($T:ident),+ $(,)?)?>)?
+///     $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     <$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>
+///     $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeDiv {
     ((* $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -1028,6 +1421,104 @@ macro_rules! NewtypeDiv {
     };
 }
 
+/// Derives [`Mul`](core::ops::Mul) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in any of following forms:
+///
+/// ```ignore
+/// (
+///     *
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+///
+/// ```
+///
+/// ```ignore
+/// (
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? self, & $($b:lifetime)? Self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(<$($($T:ident),+ $(,)?)?>)?
+///     & $($a:lifetime)? self, $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     <$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>
+///     & $($a:lifetime)? self, $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? Self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(<$($($T:ident),+ $(,)?)?>)?
+///     $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     <$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>
+///     $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeMul {
     ((* $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -1077,6 +1568,104 @@ macro_rules! NewtypeMul {
     };
 }
 
+/// Derives [`Rem`](core::ops::Rem) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in any of following forms:
+///
+/// ```ignore
+/// (
+///     *
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+///
+/// ```
+///
+/// ```ignore
+/// (
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? self, & $($b:lifetime)? Self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(<$($($T:ident),+ $(,)?)?>)?
+///     & $($a:lifetime)? self, $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     <$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>
+///     & $($a:lifetime)? self, $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? Self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(<$($($T:ident),+ $(,)?)?>)?
+///     $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     <$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>
+///     $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeRem {
     ((* $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -1126,6 +1715,104 @@ macro_rules! NewtypeRem {
     };
 }
 
+/// Derives [`Sub`](core::ops::Sub) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in any of following forms:
+///
+/// ```ignore
+/// (
+///     *
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+///
+/// ```
+///
+/// ```ignore
+/// (
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? self, & $($b:lifetime)? Self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(<$($($T:ident),+ $(,)?)?>)?
+///     & $($a:lifetime)? self, $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     <$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>
+///     & $($a:lifetime)? self, $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? Self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(<$($($T:ident),+ $(,)?)?>)?
+///     $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     <$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>
+///     $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeSub {
     ((* $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -1175,6 +1862,104 @@ macro_rules! NewtypeSub {
     };
 }
 
+/// Derives [`Shl`](core::ops::Shl) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in any of following forms:
+///
+/// ```ignore
+/// (
+///     *
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+///
+/// ```
+///
+/// ```ignore
+/// (
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? self, & $($b:lifetime)? Self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(<$($($T:ident),+ $(,)?)?>)?
+///     & $($a:lifetime)? self, $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     <$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>
+///     & $($a:lifetime)? self, $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? Self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(<$($($T:ident),+ $(,)?)?>)?
+///     $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     <$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>
+///     $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeShl {
     ((* $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -1224,6 +2009,104 @@ macro_rules! NewtypeShl {
     };
 }
 
+/// Derives [`Shr`](core::ops::Shr) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in any of following forms:
+///
+/// ```ignore
+/// (
+///     *
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+///
+/// ```
+///
+/// ```ignore
+/// (
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? self, & $($b:lifetime)? Self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(<$($($T:ident),+ $(,)?)?>)?
+///     & $($a:lifetime)? self, $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     <$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>
+///     & $($a:lifetime)? self, $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? Self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(<$($($T:ident),+ $(,)?)?>)?
+///     $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     <$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>
+///     $Rhs:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeShr {
     ((* $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -1403,6 +2286,39 @@ macro_rules! wrap_un_op {
     };
 }
 
+/// Derives [`Neg`](core::ops::Neg) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in any of following forms:
+///
+/// ```ignore
+/// (
+///     *
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeNeg {
     ((* $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -1420,6 +2336,39 @@ macro_rules! NewtypeNeg {
     };
 }
 
+/// Derives [`Not`](core::ops::Not) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in any of following forms:
+///
+/// ```ignore
+/// (
+///     *
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     & $($a:lifetime)? self
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeNot {
     ((* $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -1437,6 +2386,19 @@ macro_rules! NewtypeNot {
     };
 }
 
+/// Derives [`Deref`](core::ops::Deref) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in the following form:
+///
+/// ```ignore
+/// (
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeDeref {
     (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -1481,6 +2443,19 @@ macro_rules! NewtypeDeref_impl {
     };
 }
 
+/// Derives [`DerefMut`](core::ops::DerefMut) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in the following form:
+///
+/// ```ignore
+/// (
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeDerefMut {
     (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -1523,6 +2498,32 @@ macro_rules! NewtypeDerefMut_impl {
     };
 }
 
+/// Derives [`Index`](core::ops::Index) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in any of following forms:
+///
+/// ```ignore
+/// (
+///     $(<$($($T:ident),+ $(,)?)?>)?
+///     $Index:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     <$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>
+///     $Index:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeIndex {
     (($(<$($($T:ident),+ $(,)?)?>)? $Index:ty $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -1580,6 +2581,32 @@ macro_rules! NewtypeIndex_impl {
     };
 }
 
+/// Derives [`IndexMut`](core::ops::IndexMut) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in any of following forms:
+///
+/// ```ignore
+/// (
+///     $(<$($($T:ident),+ $(,)?)?>)?
+///     $Index:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     <$($lt:lifetime),+ $(, $($T:ident),+)? $(,)?>
+///     $Index:ty
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeIndexMut {
     (($(<$($($T:ident),+ $(,)?)?>)? $Index:ty $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -1675,6 +2702,17 @@ macro_rules! wrap_fmt {
     };
 }
 
+/// Derives [`Binary`](core::fmt::Binary) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in the following form:
+///
+/// ```ignore
+/// ($(where $($bound:tt)*)?)
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeBinary {
     (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -1682,6 +2720,17 @@ macro_rules! NewtypeBinary {
     };
 }
 
+/// Derives [`Debug`](core::fmt::Debug) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in the following form:
+///
+/// ```ignore
+/// ($(where $($bound:tt)*)?)
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeDebug {
     (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -1689,6 +2738,17 @@ macro_rules! NewtypeDebug {
     };
 }
 
+/// Derives [`Display`](core::fmt::Display) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in the following form:
+///
+/// ```ignore
+/// ($(where $($bound:tt)*)?)
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeDisplay {
     (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -1696,6 +2756,17 @@ macro_rules! NewtypeDisplay {
     };
 }
 
+/// Derives [`LowerExp`](core::fmt::LowerExp) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in the following form:
+///
+/// ```ignore
+/// ($(where $($bound:tt)*)?)
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeLowerExp {
     (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -1703,6 +2774,17 @@ macro_rules! NewtypeLowerExp {
     };
 }
 
+/// Derives [`LowerHex`](core::fmt::LowerHex) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in the following form:
+///
+/// ```ignore
+/// ($(where $($bound:tt)*)?)
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeLowerHex {
     (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -1710,6 +2792,17 @@ macro_rules! NewtypeLowerHex {
     };
 }
 
+/// Derives [`Octal`](core::fmt::Octal) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in the following form:
+///
+/// ```ignore
+/// ($(where $($bound:tt)*)?)
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeOctal {
     (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -1717,6 +2810,17 @@ macro_rules! NewtypeOctal {
     };
 }
 
+/// Derives [`Pointer`](core::fmt::Pointer) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in the following form:
+///
+/// ```ignore
+/// ($(where $($bound:tt)*)?)
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypePointer {
     (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -1724,6 +2828,17 @@ macro_rules! NewtypePointer {
     };
 }
 
+/// Derives [`UpperExp`](core::fmt::UpperExp) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in the following form:
+///
+/// ```ignore
+/// ($(where $($bound:tt)*)?)
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeUpperExp {
     (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
@@ -1731,6 +2846,17 @@ macro_rules! NewtypeUpperExp {
     };
 }
 
+/// Derives [`UpperHex`](core::fmt::UpperHex) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in the following form:
+///
+/// ```ignore
+/// ($(where $($bound:tt)*)?)
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
 #[macro_export]
 macro_rules! NewtypeUpperHex {
     (($(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
