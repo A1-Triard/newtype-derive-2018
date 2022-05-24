@@ -1,3 +1,5 @@
+![maintenance: actively developed](https://img.shields.io/badge/maintenance-actively--developed-brightgreen.svg)
+
 # `newtype-derive-2018`
 
 The [newtype-derive](https://crates.io/crates/newtype-derive) modern fork.
