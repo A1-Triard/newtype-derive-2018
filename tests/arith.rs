@@ -8,6 +8,7 @@
 // or distributed except according to those terms.
 
 #![deny(warnings)]
+#![allow(clippy::op_ref)]
 #![recursion_limit = "128"]
 
 use macro_attr_2018::macro_attr;

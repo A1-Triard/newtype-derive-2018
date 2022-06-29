@@ -182,6 +182,8 @@
 #![no_std]
 
 #[doc(hidden)]
+pub use core::convert::From as std_convert_From;
+#[doc(hidden)]
 pub use core::fmt::Binary as std_fmt_Binary;
 #[doc(hidden)]
 pub use core::fmt::Debug as std_fmt_Debug;
@@ -2494,6 +2496,112 @@ macro_rules! NewtypeDerefMut_impl {
     ) => {
         impl $($g)* $crate::std_ops_DerefMut for $name $($r)* $($w)* {
             fn deref_mut(&mut self) -> &mut Self::Target { &mut self.0 }
+        }
+    };
+}
+
+/// Derives [`From`](core::convert::From) trait implementation for newtype
+/// wrappers (i.e. tuple structs with a single non-zero sized element).
+///
+/// Accepts input in the following form:
+///
+/// ```ignore
+/// (
+///     $(where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(wrap where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+///
+/// ```ignore
+/// (
+///     $(unwrap where $($bound:tt)*)?
+/// )
+/// $vis:vis struct $name:ident $(<$generics> $(where $where_clause)?)? (
+///     $(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?
+/// );
+/// ```
+#[macro_export]
+macro_rules! NewtypeFrom {
+    (($($mode:tt)? $(where $($bound:tt)*)?) $vis:vis struct $name:ident $($token:tt)+) => {
+        $crate::generics_parse! {
+            $crate::NewtypeFrom_impl {
+                generics_parse_done
+                [$($mode)?]
+                [$name] [$($($bound)*)?]
+            }
+            $($token)+
+        }
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! NewtypeFrom_impl {
+    (
+        generics_parse_done
+        [$($mode:tt)?]
+        [$name:ident] [$($bound:tt)*]
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
+        ($(pub)? $t0:ty $(, $(pub)? $phantom:ty)* $(,)?);
+    ) => {
+        $crate::generics_concat! {
+            $crate::NewtypeFrom_impl {
+                generics_concat_done
+                [$($mode)?]
+                [$name] [$t0]
+            }
+            [$($g)*] [$($r)*] [$($w)*],
+            [] [] [where $($bound)*]
+        }
+    };
+    (
+        generics_concat_done
+        [wrap]
+        [$name:ident] [$t0:ty]
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
+    ) => {
+        impl $($g)* $crate::std_convert_From<$t0> for $name $($r)* $($w)* {
+            fn from(v: $t0) -> Self { Self(v) }
+        }
+    };
+    (
+        generics_concat_done
+        [unwrap]
+        [$name:ident] [$t0:ty]
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
+    ) => {
+        impl $($g)* $crate::std_convert_From<$name $($r)*> for $t0 $($w)* {
+            fn from(v: $name $($r)*) -> Self { v.0 }
+        }
+    };
+    (
+        generics_concat_done
+        []
+        [$name:ident] [$t0:ty]
+        [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
+    ) => {
+        $crate::NewtypeFrom_impl! {
+            generics_concat_done
+            [wrap]
+            [$name] [$t0]
+            [$($g)*] [$($r)*] [$($w)*]
+        }
+        $crate::NewtypeFrom_impl! {
+            generics_concat_done
+            [unwrap]
+            [$name] [$t0]
+            [$($g)*] [$($r)*] [$($w)*]
         }
     };
 }
