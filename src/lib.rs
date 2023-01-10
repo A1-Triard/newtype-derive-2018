@@ -2440,7 +2440,7 @@ macro_rules! NewtypeDeref_impl {
         impl $($g)* $crate::std_ops_Deref for $name $($r)* $($w)* {
             type Target = <$t0 as $crate::std_ops_Deref>::Target;
 
-            fn deref(&self) -> &Self::Target { &self.0 }
+            fn deref(&self) -> &Self::Target { <$t0 as $crate::std_ops_Deref>::deref(&self.0) }
         }
     };
 }
@@ -2495,7 +2495,7 @@ macro_rules! NewtypeDerefMut_impl {
         [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
     ) => {
         impl $($g)* $crate::std_ops_DerefMut for $name $($r)* $($w)* {
-            fn deref_mut(&mut self) -> &mut Self::Target { &mut self.0 }
+            fn deref_mut(&mut self) -> &mut Self::Target { <$t0 as $crate::std_ops_DerefMut>::deref_mut(&mut self.0) }
         }
     };
 }
