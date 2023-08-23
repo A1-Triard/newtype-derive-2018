@@ -1,8 +1,8 @@
 [package]
 edition = "2021"
 name = "newtype-derive-2018"
-version = "0.1.1"
-rust-version = "1.60"
+version = "0.2.0"
+rust-version = "1.71"
 authors = ["warlock <internalmike@gmail.com>"]
 description = "This crate provides macros for deriving common traits for newtype structures."
 readme = "README.md"
