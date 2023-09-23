@@ -4,7 +4,6 @@
 
 #![no_std]
 
-use core::alloc::Layout;
 use core::panic::PanicInfo;
 use newtype_derive_2018::NewtypeAdd;
 use macro_attr_2018::macro_attr;
@@ -30,13 +29,8 @@ unsafe fn exit(code: UINT) -> ! {
 }
 
 #[panic_handler]
-pub extern fn panic(_info: &PanicInfo) -> ! {
+fn panic(_info: &PanicInfo) -> ! {
     unsafe { exit(99) }
-}
-
-#[no_mangle]
-pub fn rust_oom(_layout: Layout) -> ! {
-    unsafe { exit(98) }
 }
 
 macro_attr! {
