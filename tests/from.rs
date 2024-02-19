@@ -9,8 +9,6 @@
 
 #![deny(warnings)]
 
-use core::convert::{TryFrom, TryInto};
-
 use macro_attr_2018::macro_attr;
 use newtype_derive_2018::*;
 
