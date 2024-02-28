@@ -12,6 +12,7 @@
 #![doc(test(attr(allow(dead_code))))]
 #![doc(test(attr(allow(unused_variables))))]
 #![doc(test(attr(allow(unused_macros))))]
+#![doc(test(attr(allow(non_local_definitions))))]
 
 //! This crate provides several macros for deriving implementations of various traits for "newtype"
 //! wrappers (i.e. tuple structs with a single non-zero sized element).
